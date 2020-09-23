@@ -113,8 +113,7 @@ LivoxDriver::LivoxDriver(const rclcpp::NodeOptions & node_options)
 
   /** Lidar data distribute control and lidar data source set */
   lddc_ptr_ =
-    std::make_unique<Lddc>(xfer_format, multi_topic, data_src, output_type, publish_freq, frame_id);
-  lddc_ptr_->SetRosNode(this);
+    std::make_unique<Lddc>(this, xfer_format, multi_topic, data_src, output_type, publish_freq, frame_id);
 
   int ret = 0;
   if (data_src == kSourceRawLidar) {
@@ -138,6 +137,7 @@ LivoxDriver::LivoxDriver(const rclcpp::NodeOptions & node_options)
     } else {
       RCLCPP_ERROR(this->get_logger(), "Init lds lidar fail!");
     }
+    lddc_ptr_->initializeDiagnostics();
   } else if (data_src == kSourceRawHub) {
     RCLCPP_INFO(this->get_logger(), "Data Source is hub.");
 

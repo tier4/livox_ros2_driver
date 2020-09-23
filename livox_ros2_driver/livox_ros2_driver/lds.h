@@ -106,6 +106,62 @@ typedef enum {
   kExtrinsicParameterFromXml
 } ExtrinsicParameterType;
 
+enum class TemperatureStatus : uint8_t {
+  Normal,             /**< 0: Temperature in Normal State. */
+  HighOrLow,          /**< 1: High or Low. */
+  ExtremelyHighOrLow, /**< 2: Extremely High or Extremely Low. */
+};
+
+enum class VoltageStatus : uint8_t {
+  Normal,        /**< 0: Voltage in Normal State. */
+  High,          /**< 1: High. */
+  ExtremelyHigh, /**< 2: Extremely High. */
+};
+
+enum class MotorStatus : uint8_t {
+  Normal,  /**< 0: Motor in Normal State. */
+  Warning, /**< 1: Motor in Warning State. */
+  Error,   /**< 2:Motor in Error State, Unable to Work. */
+};
+
+enum class DirtyStatus : uint8_t {
+  NotDirtyOrBlocked, /**< 0: Not Dirty or Blocked. */
+  DirtyOrBlocked,    /**< 1: Dirty or Blocked. */
+};
+
+enum class FirmwareStatus : uint8_t {
+  OK,       /**< 0: Firmware is OK. */
+  Abnormal, /**< 1: Firmware is Abnormal, Need to be Upgraded. */
+};
+
+enum class PPSSignalStatus : uint8_t {
+  NoSignal, /**< 0: No PPS Signal. */
+  OK,       /**< 1: PPS Signal is OK. */
+};
+
+enum class ServiceLifeStatus : uint8_t {
+  Normal,  /**< 0: Normal. */
+  Warning, /**< 1: Warning for Approaching the End of Service Life. */
+};
+
+enum class FanStatus : uint8_t {
+  Normal,  /**< 0: Fan in Normal State. */
+  Warning, /**< 1: Fan in Warning State. */
+};
+
+enum class PTPSignalStatus : uint8_t {
+  NoSignal, /**< 0: No 1588 Signal. */
+  OK,       /**< 1: 1588 Signal is OK. */
+};
+
+enum class TimeSyncStatus : uint8_t {
+  NotStarted,   /**< 0: System dose not start time synchronization. */
+  UsingPTP1588, /**< 1: Using PTP 1588 synchronization. */
+  UsingGPS,     /**< 2: Using GPS synchronization. */
+  UsingPPS,     /**< 3: Using PPS synchronization. */
+  Abnormal,     /**< 4: System time synchronization is abnormal. */
+};
+
 typedef struct {
   uint32_t receive_packet_count;
   uint32_t loss_packet_count;
