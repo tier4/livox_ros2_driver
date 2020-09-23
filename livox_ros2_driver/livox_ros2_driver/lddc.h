@@ -33,6 +33,7 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/msg/imu.hpp>
+#include <diagnostic_updater/diagnostic_updater.hpp>
 #include "livox_interfaces/msg/custom_point.hpp"
 #include "livox_interfaces/msg/custom_msg.hpp"
 
@@ -55,8 +56,8 @@ typedef enum {
 } MessageTypeOfTransfer;
 
 class Lddc {
- public:
-  Lddc(int format, int multi_topic, int data_src, int output_type, double frq,
+public:
+  Lddc(rclcpp::Node * node, int format, int multi_topic, int data_src, int output_type, double frq,
        std::string &frame_id);
   ~Lddc();
 
@@ -67,12 +68,15 @@ class Lddc {
 
   uint8_t GetTransferFormat(void) { return transfer_format_; }
   uint8_t IsMultiTopic(void) { return use_multi_topic_; }
-  void SetRosNode(rclcpp::Node * node) { cur_node_ = node; }
   void SetPublishFrq(uint32_t frq) { publish_frq_ = frq; }
+
+  void initializeDiagnostics();
 
   Lds *lds_;
 
- private:
+private:
+  using DiagStatus = diagnostic_msgs::msg::DiagnosticStatus;
+
   int32_t GetPublishStartTime(LidarDevice *lidar, LidarDataQueue *queue,
                               uint64_t *start_time,
                               StoragePacket *storage_packet);
@@ -97,6 +101,19 @@ class Lddc {
   void FillPointsToCustomMsg(livox_interfaces::msg::CustomMsg& livox_msg, \
       LivoxPointXyzrtl* src_point, uint32_t num, uint32_t offset_time, \
       uint32_t point_interval, uint32_t echo_num);
+
+  void onDiagnosticsTimer();
+  void checkTemperature(diagnostic_updater::DiagnosticStatusWrapper & stat);
+  void checkVoltage(diagnostic_updater::DiagnosticStatusWrapper & stat);
+  void checkMotor(diagnostic_updater::DiagnosticStatusWrapper & stat);
+  void checkDirty(diagnostic_updater::DiagnosticStatusWrapper & stat);
+  void checkFirmware(diagnostic_updater::DiagnosticStatusWrapper & stat);
+  void checkPPSSignal(diagnostic_updater::DiagnosticStatusWrapper & stat);
+  void checkServiceLife(diagnostic_updater::DiagnosticStatusWrapper & stat);
+  void checkFan(diagnostic_updater::DiagnosticStatusWrapper & stat);
+  void checkPTPSignal(diagnostic_updater::DiagnosticStatusWrapper & stat);
+  void checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper & stat);
+
   uint8_t transfer_format_;
   uint8_t use_multi_topic_;
   uint8_t data_src_;
@@ -111,6 +128,41 @@ class Lddc {
   std::shared_ptr<rclcpp::PublisherBase>global_imu_pub_;
   rclcpp::Node* cur_node_;
   // rclcpp::rosbag::Bag *bag_;
+
+  rclcpp::TimerBase::SharedPtr timer_;
+  diagnostic_updater::Updater updater_;
+  uint8_t lidar_count_;
+
+  const std::map<int, const char *> temperature_dict_ = {
+    {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "High or Low"}, {DiagStatus::ERROR, "Extremely High or Extremely Low"}};
+
+  const std::map<int, const char *> voltage_dict_ = {
+    {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "High"}, {DiagStatus::ERROR, "Extremely High"}};
+
+  const std::map<int, const char *> motor_dict_ = {
+    {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "Warning State"}, {DiagStatus::ERROR, "Error State, Unable to Work"}};
+
+  const std::map<int, const char *> dirty_dict_ = {
+    {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "Dirty or Blocked"}, {DiagStatus::ERROR, "unused"}};
+
+  const std::map<int, const char *> firmware_dict_ = {
+    {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "unused"}, {DiagStatus::ERROR, "Firmware is Abnormal, Need to be Upgraded"}};
+
+  const std::map<int, const char *> pps_dict_ = {
+    {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "No PPS Signal"}, {DiagStatus::ERROR, "unused"}};
+
+  const std::map<int, const char *> life_dict_ = {
+    {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "Warning for Approaching the End of Service Life"}, {DiagStatus::ERROR, "unused"}};
+
+  const std::map<int, const char *> fan_dict_ = {
+    {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "Warning State"}, {DiagStatus::ERROR, "unused"}};
+
+  const std::map<int, const char *> ptp_dict_ = {
+    {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "No 1588 Signal"}, {DiagStatus::ERROR, "unused"}};
+
+  const std::map<int, const char *> time_sync_dict_ = {
+    {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "System time synchronization is abnormal"}, {DiagStatus::ERROR, "unused"}};
+
 };
 
 }  // namespace livox_ros
