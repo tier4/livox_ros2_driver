@@ -676,12 +676,17 @@ void Lddc::initializeDiagnostics()
 {
   using std::chrono_literals::operator""s;
 
+  bool check_pps_signal =
+    cur_node_->declare_parameter("check_pps_signal", false);
+
   updater_.add("livox_tempereature", this, &Lddc::checkTemperature);
   updater_.add("livox_internal_voltage", this, &Lddc::checkVoltage);
   updater_.add("livox_motor_status", this, &Lddc::checkMotor);
   updater_.add("livox_optical_window", this, &Lddc::checkDirty);
   updater_.add("livox_firmware_staus", this, &Lddc::checkFirmware);
-  updater_.add("livox_pps_signal", this, &Lddc::checkPPSSignal);
+  if (check_pps_signal) {
+    updater_.add("livox_pps_signal", this, &Lddc::checkPPSSignal);
+  }
   updater_.add("livox_service_life", this, &Lddc::checkServiceLife);
   updater_.add("livox_fan_status", this, &Lddc::checkFan);
   updater_.add("livox_ptp_signal", this, &Lddc::checkPTPSignal);
