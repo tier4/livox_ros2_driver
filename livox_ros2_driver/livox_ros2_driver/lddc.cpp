@@ -474,7 +474,7 @@ uint32_t Lddc::PublishImuData(LidarDataQueue *queue, uint32_t packet_num,
   uint32_t published_packet = 0;
 
   sensor_msgs::msg::Imu imu_data;
-  imu_data.header.frame_id = "livox_frame";
+  imu_data.header.frame_id.assign(frame_id_);
 
   uint8_t data_source = lds_->lidars_[handle].data_src;
   StoragePacket storage_packet;
