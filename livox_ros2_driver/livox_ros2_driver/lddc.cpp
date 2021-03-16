@@ -679,11 +679,11 @@ void Lddc::initializeDiagnostics()
   bool check_pps_signal =
     cur_node_->declare_parameter("check_pps_signal", false);
 
-  updater_.add("livox_tempereature", this, &Lddc::checkTemperature);
+  updater_.add("livox_temperature", this, &Lddc::checkTemperature);
   updater_.add("livox_internal_voltage", this, &Lddc::checkVoltage);
   updater_.add("livox_motor_status", this, &Lddc::checkMotor);
   updater_.add("livox_optical_window", this, &Lddc::checkDirty);
-  updater_.add("livox_firmware_staus", this, &Lddc::checkFirmware);
+  updater_.add("livox_firmware_status", this, &Lddc::checkFirmware);
   if (check_pps_signal) {
     updater_.add("livox_pps_signal", this, &Lddc::checkPPSSignal);
   }
