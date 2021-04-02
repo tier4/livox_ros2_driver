@@ -228,9 +228,6 @@ uint32_t Lddc::PublishPointcloud2(LidarDataQueue *queue, uint32_t packet_num,
     }
 #endif
   }
-  if (!lidar->data_is_pubulished) {
-    lidar->data_is_pubulished = true;
-  }
   return published_packet;
 }
 
@@ -514,9 +511,6 @@ uint32_t Lddc::PublishImuData(LidarDataQueue *queue, uint32_t packet_num,
     }
 #endif
   }
-  return published_packet;
-}
-
 int Lddc::RegisterLds(Lds *lds) {
   if (lds_ == nullptr) {
     lds_ = lds;
@@ -582,7 +576,7 @@ void Lddc::DistributeLidarData(void) {
 }
 
 std::shared_ptr<rclcpp::PublisherBase> Lddc::CreatePublisher(uint8_t msg_type,
-    std::string &topic_name) {
+    std::string &topic_name, uint32_t queue_size) {
     if (kPointCloud2Msg == msg_type) {
       RCLCPP_INFO(cur_node_->get_logger(),
           "%s publish use PointCloud2 format", topic_name.c_str());
@@ -598,13 +592,14 @@ std::shared_ptr<rclcpp::PublisherBase> Lddc::CreatePublisher(uint8_t msg_type,
     else if (kPclPxyziMsg == msg_type)  {
       RCLCPP_INFO(cur_node_->get_logger(),
           "%s publish use pcl PointXYZI format", topic_name.c_str());
-      return cur_node_->create_publisher<PointCloud>(topic_name, rclcpp::SensorDataQoS());
+      return cur_node_->create_publisher<PointCloud>(topic_name, queue_size);
     }
 #endif
     else if (kLivoxImuMsg == msg_type)  {
       RCLCPP_INFO(cur_node_->get_logger(),
           "%s publish use imu format", topic_name.c_str());
-      return cur_node_->create_publisher<sensor_msgs::msg::Imu>(topic_name, 16);
+      return cur_node_->create_publisher<sensor_msgs::msg::Imu>(topic_name,
+          queue_size);
     } else {
       std::shared_ptr<rclcpp::PublisherBase>null_publisher(nullptr);
       return null_publisher;
@@ -612,6 +607,7 @@ std::shared_ptr<rclcpp::PublisherBase> Lddc::CreatePublisher(uint8_t msg_type,
 }
 
 std::shared_ptr<rclcpp::PublisherBase> Lddc::GetCurrentPublisher(uint8_t handle) {
+  uint32_t queue_size = kMinEthPacketQueueSize;
   if (use_multi_topic_) {
     if (!private_pub_[handle]) {
       char name_str[48];
@@ -619,19 +615,23 @@ std::shared_ptr<rclcpp::PublisherBase> Lddc::GetCurrentPublisher(uint8_t handle)
       snprintf(name_str, sizeof(name_str), "livox/lidar_%s",
           lds_->lidars_[handle].info.broadcast_code);
       std::string topic_name(name_str);
-      private_pub_[handle] = CreatePublisher(transfer_format_, topic_name);
+      queue_size = queue_size * 2; // queue size is 64 for only one lidar
+      private_pub_[handle] = CreatePublisher(transfer_format_, topic_name,
+          queue_size);
     }
     return private_pub_[handle];
   } else {
     if (!global_pub_) {
       std::string topic_name("livox/lidar");
-      global_pub_ = CreatePublisher(transfer_format_, topic_name);
+      queue_size = queue_size * 8; // shared queue size is 256, for all lidars
+      global_pub_ = CreatePublisher(transfer_format_, topic_name, queue_size);
     }
     return global_pub_;
   }
 }
 
 std::shared_ptr<rclcpp::PublisherBase> Lddc::GetCurrentImuPublisher(uint8_t handle) {
+  uint32_t queue_size = kMinEthPacketQueueSize;
   if (use_multi_topic_) {
     if (!private_imu_pub_[handle]) {
       char name_str[48];
@@ -639,13 +639,16 @@ std::shared_ptr<rclcpp::PublisherBase> Lddc::GetCurrentImuPublisher(uint8_t hand
       snprintf(name_str, sizeof(name_str), "livox/imu_%s",
           lds_->lidars_[handle].info.broadcast_code);
       std::string topic_name(name_str);
-      private_imu_pub_[handle] = CreatePublisher(kLivoxImuMsg, topic_name);
+      queue_size = queue_size * 2; // queue size is 64 for only one lidar
+      private_imu_pub_[handle] = CreatePublisher(kLivoxImuMsg, topic_name,
+          queue_size);
     }
     return private_imu_pub_[handle];
   } else {
     if (!global_imu_pub_) {
       std::string topic_name("livox/imu");
-      global_imu_pub_ = CreatePublisher(kLivoxImuMsg, topic_name);
+      queue_size = queue_size * 8; // shared queue size is 256, for all lidars
+      global_imu_pub_ = CreatePublisher(kLivoxImuMsg, topic_name, queue_size);
     }
     return global_imu_pub_;
   }
