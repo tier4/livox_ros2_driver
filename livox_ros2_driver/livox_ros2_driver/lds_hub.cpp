@@ -711,4 +711,15 @@ int LdsHub::GetRawConfig(const char *broadcast_code, UserRawConfig &config) {
   return -1;
 }
 
+int LdsHub::GetRawConfigHandle(const uint32_t handle, UserRawConfig &config) {
+      config.enable_fan = lidar_raw_config_[handle].enable_fan;
+      config.return_mode = lidar_raw_config_[handle].return_mode;
+      config.coordinate = lidar_raw_config_[handle].coordinate;
+      config.imu_rate = lidar_raw_config_[handle].imu_rate;
+      config.extrinsic_parameter_source = lidar_raw_config_[handle].extrinsic_parameter_source;
+      config.enable_high_sensitivity = lidar_raw_config_[handle].enable_high_sensitivity;
+      config.frame_id = lidar_raw_config_[handle].frame_id;
+      return 0;
+  }
+
 }  // namespace livox_ros
