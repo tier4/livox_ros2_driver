@@ -29,9 +29,6 @@
 #include <math.h>
 #include <stdint.h>
 
-#define FMT_HEADER_ONLY
-#include "fmt/format.h"
-
 #include <rclcpp/rclcpp.hpp>
 #include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/msg/point_cloud2.hpp>
@@ -727,12 +724,12 @@ void Lddc::checkTemperature(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lidar.second == nullptr) {
       error_str = "LiDAR disconnected";
-      stat.add(fmt::format("{}: status", lidar.first), "disconnected");
+      stat.add(lidar.first, "disconnected");
       continue;
     }
 
     if (lidar.second->state == kLidarStateInit) {
-      stat.addf(fmt::format("{}: progress", lidar.first), "%d%%", lidar.second->status.progress);
+      stat.addf(lidar.first, "%d%%", lidar.second->status.progress);
       continue;
     }
 
@@ -744,7 +741,7 @@ void Lddc::checkTemperature(diagnostic_updater::DiagnosticStatusWrapper & stat)
       level = DiagStatus::ERROR;
     }
 
-    stat.add(fmt::format("{}: status", lidar.first), temperature_dict_.at(level));
+    stat.add(lidar.first, temperature_dict_.at(level));
     whole_level = std::max(whole_level, level);
   }
 
@@ -771,12 +768,12 @@ void Lddc::checkVoltage(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lidar.second == nullptr) {
       error_str = "LiDAR disconnected";
-      stat.add(fmt::format("{}: status", lidar.first), "disconnected");
+      stat.add(lidar.first, "disconnected");
       continue;
     }
 
     if (lidar.second->state == kLidarStateInit) {
-      stat.addf(fmt::format("{}: progress", lidar.first), "%d%%", lidar.second->status.progress);
+      stat.addf(lidar.first, "%d%%", lidar.second->status.progress);
       continue;
     }
 
@@ -788,7 +785,7 @@ void Lddc::checkVoltage(diagnostic_updater::DiagnosticStatusWrapper & stat)
       level = DiagStatus::ERROR;
     }
 
-    stat.add(fmt::format("{}: status", lidar.first), motor_dict_.at(level));
+    stat.add(lidar.first, motor_dict_.at(level));
     whole_level = std::max(whole_level, level);
   }
 
@@ -815,12 +812,12 @@ void Lddc::checkMotor(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lidar.second == nullptr) {
       error_str = "LiDAR disconnected";
-      stat.add(fmt::format("{}: status", lidar.first), "disconnected");
+      stat.add(lidar.first, "disconnected");
       continue;
     }
 
     if (lidar.second->state == kLidarStateInit) {
-      stat.addf(fmt::format("{}: progress", lidar.first), "%d%%", lidar.second->status.progress);
+      stat.addf(lidar.first, "%d%%", lidar.second->status.progress);
       continue;
     }
 
@@ -832,7 +829,7 @@ void Lddc::checkMotor(diagnostic_updater::DiagnosticStatusWrapper & stat)
       level = DiagStatus::ERROR;
     }
 
-    stat.add(fmt::format("{}: status", lidar.first), motor_dict_.at(level));
+    stat.add(lidar.first, motor_dict_.at(level));
     whole_level = std::max(whole_level, level);
   }
 
@@ -859,12 +856,12 @@ void Lddc::checkDirty(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lidar.second == nullptr) {
       error_str = "LiDAR disconnected";
-      stat.add(fmt::format("{}: status", lidar.first), "disconnected");
+      stat.add(lidar.first, "disconnected");
       continue;
     }
 
     if (lidar.second->state == kLidarStateInit) {
-      stat.addf(fmt::format("{}: progress", lidar.first), "%d%%", lidar.second->status.progress);
+      stat.addf(lidar.first, "%d%%", lidar.second->status.progress);
       continue;
     }
 
@@ -874,7 +871,7 @@ void Lddc::checkDirty(diagnostic_updater::DiagnosticStatusWrapper & stat)
       level = DiagStatus::WARN;
     }
 
-    stat.add(fmt::format("{}: status", lidar.first), dirty_dict_.at(level));
+    stat.add(lidar.first, dirty_dict_.at(level));
     whole_level = std::max(whole_level, level);
   }
 
@@ -901,12 +898,12 @@ void Lddc::checkFirmware(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lidar.second == nullptr) {
       error_str = "LiDAR disconnected";
-      stat.add(fmt::format("{}: status", lidar.first), "disconnected");
+      stat.add(lidar.first, "disconnected");
       continue;
     }
 
     if (lidar.second->state == kLidarStateInit) {
-      stat.addf(fmt::format("{}: progress", lidar.first), "%d%%", lidar.second->status.progress);
+      stat.addf(lidar.first, "%d%%", lidar.second->status.progress);
       continue;
     }
 
@@ -916,7 +913,7 @@ void Lddc::checkFirmware(diagnostic_updater::DiagnosticStatusWrapper & stat)
       level = DiagStatus::ERROR;
     }
 
-    stat.add(fmt::format("{}: status", lidar.first), firmware_dict_.at(level));
+    stat.add(lidar.first, firmware_dict_.at(level));
     whole_level = std::max(whole_level, level);
   }
 
@@ -943,12 +940,12 @@ void Lddc::checkPPSSignal(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lidar.second == nullptr) {
       error_str = "LiDAR disconnected";
-      stat.add(fmt::format("{}: status", lidar.first), "disconnected");
+      stat.add(lidar.first, "disconnected");
       continue;
     }
 
     if (lidar.second->state == kLidarStateInit) {
-      stat.addf(fmt::format("{}: progress", lidar.first), "%d%%", lidar.second->status.progress);
+      stat.addf(lidar.first, "%d%%", lidar.second->status.progress);
       continue;
     }
 
@@ -958,7 +955,7 @@ void Lddc::checkPPSSignal(diagnostic_updater::DiagnosticStatusWrapper & stat)
       level = DiagStatus::WARN;
     }
 
-    stat.add(fmt::format("{}: status", lidar.first), pps_dict_.at(level));
+    stat.add(lidar.first, pps_dict_.at(level));
     whole_level = std::max(whole_level, level);
   }
 
@@ -985,12 +982,12 @@ void Lddc::checkServiceLife(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lidar.second == nullptr) {
       error_str = "LiDAR disconnected";
-      stat.add(fmt::format("{}: status", lidar.first), "disconnected");
+      stat.add(lidar.first, "disconnected");
       continue;
     }
 
     if (lidar.second->state == kLidarStateInit) {
-      stat.addf(fmt::format("{}: progress", lidar.first), "%d%%", lidar.second->status.progress);
+      stat.addf(lidar.first, "%d%%", lidar.second->status.progress);
       continue;
     }
 
@@ -1000,7 +997,7 @@ void Lddc::checkServiceLife(diagnostic_updater::DiagnosticStatusWrapper & stat)
       level = DiagStatus::WARN;
     }
 
-    stat.add(fmt::format("{}: status", lidar.first), life_dict_.at(level));
+    stat.add(lidar.first, life_dict_.at(level));
     whole_level = std::max(whole_level, level);
   }
 
@@ -1027,12 +1024,12 @@ void Lddc::checkFan(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lidar.second == nullptr) {
       error_str = "LiDAR disconnected";
-      stat.add(fmt::format("{}: status", lidar.first), "disconnected");
+      stat.add(lidar.first, "disconnected");
       continue;
     }
 
     if (lidar.second->state == kLidarStateInit) {
-      stat.addf(fmt::format("{}: progress", lidar.first), "%d%%", lidar.second->status.progress);
+      stat.addf(lidar.first, "%d%%", lidar.second->status.progress);
       continue;
     }
 
@@ -1042,7 +1039,7 @@ void Lddc::checkFan(diagnostic_updater::DiagnosticStatusWrapper & stat)
       level = DiagStatus::WARN;
     }
 
-    stat.add(fmt::format("{}: status", lidar.first), fan_dict_.at(level));
+    stat.add(lidar.first, fan_dict_.at(level));
     whole_level = std::max(whole_level, level);
   }
 
@@ -1069,12 +1066,12 @@ void Lddc::checkPTPSignal(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lidar.second == nullptr) {
       error_str = "LiDAR disconnected";
-      stat.add(fmt::format("{}: status", lidar.first), "disconnected");
+      stat.add(lidar.first, "disconnected");
       continue;
     }
 
     if (lidar.second->state == kLidarStateInit) {
-      stat.addf(fmt::format("{}: progress", lidar.first), "%d%%", lidar.second->status.progress);
+      stat.addf(lidar.first, "%d%%", lidar.second->status.progress);
       continue;
     }
 
@@ -1084,7 +1081,7 @@ void Lddc::checkPTPSignal(diagnostic_updater::DiagnosticStatusWrapper & stat)
       level = DiagStatus::WARN;
     }
 
-    stat.add(fmt::format("{}: status", lidar.first), ptp_dict_.at(level));
+    stat.add(lidar.first, ptp_dict_.at(level));
     whole_level = std::max(whole_level, level);
   }
 
@@ -1111,12 +1108,12 @@ void Lddc::checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lidar.second == nullptr) {
       error_str = "LiDAR disconnected";
-      stat.add(fmt::format("{}: status", lidar.first), "disconnected");
+      stat.add(lidar.first, "disconnected");
       continue;
     }
 
     if (lidar.second->state == kLidarStateInit) {
-      stat.addf(fmt::format("{}: progress", lidar.first), "%d%%", lidar.second->status.progress);
+      stat.addf(lidar.first, "%d%%", lidar.second->status.progress);
       continue;
     }
 
@@ -1126,7 +1123,7 @@ void Lddc::checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper & stat)
       level = DiagStatus::WARN;
     }
 
-    stat.add(fmt::format("{}: status", lidar.first), time_sync_dict_.at(level));
+    stat.add(lidar.first, time_sync_dict_.at(level));
     whole_level = std::max(whole_level, level);
   }
 
