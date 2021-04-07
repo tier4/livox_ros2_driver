@@ -29,6 +29,7 @@
 #include <memory>
 #include <mutex>
 #include <thread>
+#include <iostream>
 
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"
@@ -700,6 +701,10 @@ int LdsLidar::ParseConfigFile(const char *pathname) {
               object["enable_high_sensitivity"].GetBool()) {
             config.enable_high_sensitivity =
                 object["enable_high_sensitivity"].GetBool();
+          }
+          if (object.HasMember("frame_id") &&
+              object["frame_id"].IsString()) {
+                  config.frame_id = object["frame_id"].GetString();
           }
 
           printf("broadcast code[%s] : %d %d %d %d %d %d\n",
