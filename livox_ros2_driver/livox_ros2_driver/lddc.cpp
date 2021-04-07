@@ -161,7 +161,7 @@ uint32_t Lddc::PublishPointcloud2(LidarDataQueue *queue, uint32_t packet_num,
   UserRawConfig config;
   const char *char_handle = reinterpret_cast<char*>(handle); 
   lds_->GetRawConfig(char_handle, config);
-  printf("config.frame_id:  %s\n", config.frame_id);
+  // printf("config.frame_id:  %s\n", config.frame_id);
   InitPointcloud2MsgHeader(cloud, config.frame_id);
   cloud.data.resize(packet_num * kMaxPointPerEthPacket *
                     sizeof(LivoxPointXyzrtl));

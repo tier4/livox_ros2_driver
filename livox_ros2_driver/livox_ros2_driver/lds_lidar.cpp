@@ -777,6 +777,7 @@ int LdsLidar::GetRawConfig(const char *broadcast_code, UserRawConfig &config) {
       config.imu_rate = ite_config.imu_rate;
       config.extrinsic_parameter_source = ite_config.extrinsic_parameter_source;
       config.enable_high_sensitivity = ite_config.enable_high_sensitivity;
+      config.frame_id = ite_config.frame_id;
       return 0;
     }
   }
