@@ -29,11 +29,12 @@
 #include <memory>
 #include <mutex>
 #include <thread>
+#include <iostream>
 
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"
 #include "rapidjson/stringbuffer.h"
-
+#include "rapidjson/error/en.h"
 using namespace std;
 
 namespace livox_ros {
@@ -701,11 +702,16 @@ int LdsLidar::ParseConfigFile(const char *pathname) {
             config.enable_high_sensitivity =
                 object["enable_high_sensitivity"].GetBool();
           }
+          if (object.HasMember("frame_id") &&
+              object["frame_id"].IsString()) {
+                  config.frame_id = object["frame_id"].GetString();
+          }
 
-          printf("broadcast code[%s] : %d %d %d %d %d %d\n",
+          printf("broadcast code[%s] : %d %d %d %d %d %d frame_id[%s]\n",
                  config.broadcast_code, config.enable_connect,
                  config.enable_fan, config.return_mode, config.coordinate,
-                 config.imu_rate, config.extrinsic_parameter_source);
+                 config.imu_rate, config.extrinsic_parameter_source,
+                 config.frame_id.c_str());
           if (config.enable_connect) {
             if (!AddBroadcastCodeToWhitelist(config.broadcast_code)) {
               if (AddRawUserConfig(config)) {
@@ -723,6 +729,8 @@ int LdsLidar::ParseConfigFile(const char *pathname) {
       enable_timesync_ = false;
     }
   } else {
+    std::cout << "error offset:" << doc.GetErrorOffset() << std::endl;
+    std::cout << "error pase:" << rapidjson::GetParseError_En(doc.GetParseError()) << std::endl;
     printf("User config file parse error[%d]\n",
            doc.ParseStream(config_file).HasParseError());
   }
@@ -772,11 +780,25 @@ int LdsLidar::GetRawConfig(const char *broadcast_code, UserRawConfig &config) {
       config.imu_rate = ite_config.imu_rate;
       config.extrinsic_parameter_source = ite_config.extrinsic_parameter_source;
       config.enable_high_sensitivity = ite_config.enable_high_sensitivity;
+      config.frame_id = ite_config.frame_id;
       return 0;
     }
   }
 
   return -1;
 }
+
+int LdsLidar::GetRawConfigHandle(const uint32_t handle, UserRawConfig &config) {
+    strcpy(config.broadcast_code, raw_config_[handle].broadcast_code);
+    config.enable_fan = raw_config_[handle].enable_fan;
+    config.return_mode = raw_config_[handle].return_mode;
+    config.coordinate = raw_config_[handle].coordinate;
+    config.imu_rate = raw_config_[handle].imu_rate;
+    config.extrinsic_parameter_source = raw_config_[handle].extrinsic_parameter_source;
+    config.enable_high_sensitivity = raw_config_[handle].enable_high_sensitivity;
+    config.frame_id = raw_config_[handle].frame_id;
+    return 0;
+  }
+
 
 }  // namespace livox_ros

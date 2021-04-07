@@ -107,8 +107,8 @@ int32_t Lddc::GetPublishStartTime(LidarDevice *lidar, LidarDataQueue *queue,
   }
 }
 
-void Lddc::InitPointcloud2MsgHeader(sensor_msgs::msg::PointCloud2& cloud) {
-  cloud.header.frame_id.assign(frame_id_);
+void Lddc::InitPointcloud2MsgHeader(sensor_msgs::msg::PointCloud2& cloud, std::string frame_id) {
+  cloud.header.frame_id.assign(frame_id);
   cloud.height = 1;
   cloud.width = 0;
   cloud.fields.resize(6);
@@ -153,7 +153,12 @@ uint32_t Lddc::PublishPointcloud2(LidarDataQueue *queue, uint32_t packet_num,
   }
 
   sensor_msgs::msg::PointCloud2 cloud;
-  InitPointcloud2MsgHeader(cloud);
+
+  UserRawConfig config, config_tmp;
+  lds_->GetRawConfigHandle(handle, config_tmp);
+  char *broadcast_code = config_tmp.broadcast_code;
+  lds_->GetRawConfig(config_tmp.broadcast_code, config);
+  InitPointcloud2MsgHeader(cloud, config.frame_id);
   cloud.data.resize(packet_num * kMaxPointPerEthPacket *
                     sizeof(LivoxPointXyzrtl));
   cloud.point_step = sizeof(LivoxPointXyzrtl);
@@ -616,8 +621,12 @@ std::shared_ptr<rclcpp::PublisherBase> Lddc::GetCurrentPublisher(uint8_t handle)
     if (!private_pub_[handle]) {
       char name_str[48];
       memset(name_str, 0, sizeof(name_str));
-      snprintf(name_str, sizeof(name_str), "livox/lidar_%s",
-          lds_->lidars_[handle].info.broadcast_code);
+      UserRawConfig config, config_tmp;
+      lds_->GetRawConfigHandle(handle, config_tmp);
+      char *broadcast_code = config_tmp.broadcast_code;
+      lds_->GetRawConfig(config_tmp.broadcast_code, config);
+      snprintf(name_str, sizeof(name_str), "%s/livox/lidar",
+          config.frame_id.substr(6).c_str());
       std::string topic_name(name_str);
       private_pub_[handle] = CreatePublisher(transfer_format_, topic_name);
     }
@@ -636,8 +645,12 @@ std::shared_ptr<rclcpp::PublisherBase> Lddc::GetCurrentImuPublisher(uint8_t hand
     if (!private_imu_pub_[handle]) {
       char name_str[48];
       memset(name_str, 0, sizeof(name_str));
-      snprintf(name_str, sizeof(name_str), "livox/imu_%s",
-          lds_->lidars_[handle].info.broadcast_code);
+      UserRawConfig config, config_tmp;
+      lds_->GetRawConfigHandle(handle, config_tmp);
+      char *broadcast_code = config_tmp.broadcast_code;
+      lds_->GetRawConfig(config_tmp.broadcast_code, config);
+      snprintf(name_str, sizeof(name_str), "%s/livox/imu",
+          config.frame_id.substr(6).c_str());
       std::string topic_name(name_str);
       private_imu_pub_[handle] = CreatePublisher(kLivoxImuMsg, topic_name);
     }
