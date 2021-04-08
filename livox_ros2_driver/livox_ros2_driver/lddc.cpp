@@ -159,7 +159,7 @@ uint32_t Lddc::PublishPointcloud2(LidarDataQueue *queue, uint32_t packet_num,
   sensor_msgs::msg::PointCloud2 cloud;
 
   UserRawConfig config;
-  const char *char_handle = reinterpret_cast<char*>(handle); 
+  const char *char_handle = reinterpret_cast<char*>(handle);
   lds_->GetRawConfig(char_handle, config);
   // printf("config.frame_id:  %s\n", config.frame_id);
   InitPointcloud2MsgHeader(cloud, config.frame_id);
@@ -520,6 +520,8 @@ uint32_t Lddc::PublishImuData(LidarDataQueue *queue, uint32_t packet_num,
     }
 #endif
   }
+}
+
 int Lddc::RegisterLds(Lds *lds) {
   if (lds_ == nullptr) {
     lds_ = lds;
@@ -590,12 +592,12 @@ std::shared_ptr<rclcpp::PublisherBase> Lddc::CreatePublisher(uint8_t msg_type,
       RCLCPP_INFO(cur_node_->get_logger(),
           "%s publish use PointCloud2 format", topic_name.c_str());
       return cur_node_->create_publisher<
-          sensor_msgs::msg::PointCloud2>(topic_name, rclcpp::SensorDataQoS());
+          sensor_msgs::msg::PointCloud2>(topic_name, rclcpp::SensorDataQoS().keep_last(queue_size));
     } else if (kLivoxCustomMsg == msg_type) {
       RCLCPP_INFO(cur_node_->get_logger(),
           "%s publish use livox custom format", topic_name);
       return cur_node_->create_publisher<
-          livox_interfaces::msg::CustomMsg>(topic_name, rclcpp::SensorDataQoS());
+          livox_interfaces::msg::CustomMsg>(topic_name, rclcpp::SensorDataQoS().keep_last(queue_size));
     }
 #if 0
     else if (kPclPxyziMsg == msg_type)  {
