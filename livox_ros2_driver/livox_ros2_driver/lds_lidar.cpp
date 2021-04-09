@@ -789,6 +789,7 @@ int LdsLidar::GetRawConfig(const char *broadcast_code, UserRawConfig &config) {
 }
 
 int LdsLidar::GetRawConfigHandle(const uint32_t handle, UserRawConfig &config) {
+    strcpy(config.broadcast_code, raw_config_[handle].broadcast_code);
     config.enable_fan = raw_config_[handle].enable_fan;
     config.return_mode = raw_config_[handle].return_mode;
     config.coordinate = raw_config_[handle].coordinate;
