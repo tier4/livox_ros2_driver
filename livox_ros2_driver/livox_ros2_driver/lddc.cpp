@@ -107,7 +107,7 @@ int32_t Lddc::GetPublishStartTime(LidarDevice *lidar, LidarDataQueue *queue,
   }
 }
 
-void Lddc::InitPointcloud2MsgHeader(sensor_msgs::msg::PointCloud2& cloud, std::string frame_id) {
+void Lddc::InitPointcloud2MsgHeader(sensor_msgs::msg::PointCloud2& cloud, const std::string& frame_id) {
   cloud.header.frame_id.assign(frame_id);
   cloud.height = 1;
   cloud.width = 0;
@@ -156,7 +156,6 @@ uint32_t Lddc::PublishPointcloud2(LidarDataQueue *queue, uint32_t packet_num,
 
   UserRawConfig config, config_tmp;
   lds_->GetRawConfigHandle(handle, config_tmp);
-  char *broadcast_code = config_tmp.broadcast_code;
   lds_->GetRawConfig(config_tmp.broadcast_code, config);
   InitPointcloud2MsgHeader(cloud, config.frame_id);
   cloud.data.resize(packet_num * kMaxPointPerEthPacket *
@@ -623,7 +622,6 @@ std::shared_ptr<rclcpp::PublisherBase> Lddc::GetCurrentPublisher(uint8_t handle)
       memset(name_str, 0, sizeof(name_str));
       UserRawConfig config, config_tmp;
       lds_->GetRawConfigHandle(handle, config_tmp);
-      char *broadcast_code = config_tmp.broadcast_code;
       lds_->GetRawConfig(config_tmp.broadcast_code, config);
       snprintf(name_str, sizeof(name_str), "%s/livox/lidar",
           config.frame_id.substr(6).c_str());
@@ -647,7 +645,6 @@ std::shared_ptr<rclcpp::PublisherBase> Lddc::GetCurrentImuPublisher(uint8_t hand
       memset(name_str, 0, sizeof(name_str));
       UserRawConfig config, config_tmp;
       lds_->GetRawConfigHandle(handle, config_tmp);
-      char *broadcast_code = config_tmp.broadcast_code;
       lds_->GetRawConfig(config_tmp.broadcast_code, config);
       snprintf(name_str, sizeof(name_str), "%s/livox/imu",
           config.frame_id.substr(6).c_str());
