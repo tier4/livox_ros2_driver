@@ -96,7 +96,6 @@ class LdsHub : public Lds {
   int AddRawUserConfig(UserRawConfig &config);
   bool IsExistInRawConfig(const char *broadcast_code);
   int GetRawConfig(const char *broadcast_code, UserRawConfig &config);
-  int GetRawConfigHandle(const uint32_t handle, UserRawConfig &config);
   bool IsAllLidarSetBitsClear() {
     for (int i = 0; i < kMaxLidarCount; i++) {
       if (lidars_[i].config.set_bits) {

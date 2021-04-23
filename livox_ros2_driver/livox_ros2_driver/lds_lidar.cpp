@@ -798,17 +798,5 @@ int LdsLidar::GetRawConfig(const char *broadcast_code, UserRawConfig &config) {
   return -1;
 }
 
-int LdsLidar::GetRawConfigHandle(const uint32_t handle, UserRawConfig &config) {
-    strcpy(config.broadcast_code, raw_config_[handle].broadcast_code);
-    config.enable_fan = raw_config_[handle].enable_fan;
-    config.return_mode = raw_config_[handle].return_mode;
-    config.coordinate = raw_config_[handle].coordinate;
-    config.imu_rate = raw_config_[handle].imu_rate;
-    config.extrinsic_parameter_source = raw_config_[handle].extrinsic_parameter_source;
-    config.enable_high_sensitivity = raw_config_[handle].enable_high_sensitivity;
-    config.frame_id = raw_config_[handle].frame_id;
-    return 0;
-  }
-
 
 }  // namespace livox_ros

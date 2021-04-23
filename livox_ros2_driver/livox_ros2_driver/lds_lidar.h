@@ -103,7 +103,6 @@ class LdsLidar : public Lds {
   int AddRawUserConfig(UserRawConfig &config);
   bool IsExistInRawConfig(const char *broadcast_code);
   int GetRawConfig(const char *broadcast_code, UserRawConfig &config) override;
-  int GetRawConfigHandle(const uint32_t handle, UserRawConfig &config) override;
 
   bool auto_connect_mode_;
   uint32_t whitelist_count_;
