@@ -154,8 +154,7 @@ uint32_t Lddc::PublishPointcloud2(LidarDataQueue *queue, uint32_t packet_num,
 
   sensor_msgs::msg::PointCloud2 cloud;
 
-  UserRawConfig config, config_tmp;
-  // lds_->GetRawConfigHandle(handle, config_tmp);
+  UserRawConfig config;
   lds_->GetRawConfig(lidar->info.broadcast_code, config);
   InitPointcloud2MsgHeader(cloud, config.frame_id);
   cloud.data.resize(packet_num * kMaxPointPerEthPacket *
@@ -618,16 +617,10 @@ std::shared_ptr<rclcpp::PublisherBase> Lddc::CreatePublisher(uint8_t msg_type,
 std::shared_ptr<rclcpp::PublisherBase> Lddc::GetCurrentPublisher(uint8_t handle) {
   if (use_multi_topic_) {
     if (!private_pub_[handle]) {
-      char name_str[48];
-      memset(name_str, 0, sizeof(name_str));
       UserRawConfig config, config_tmp;
-      // lds_->GetRawConfigHandle(handle, config_tmp);
       LidarDevice *lidar = &lds_->lidars_[handle];
       lds_->GetRawConfig(lidar->info.broadcast_code, config);
-      snprintf(name_str, sizeof(name_str), "%s/livox/lidar",
-          config.frame_id.substr(6).c_str());
-      std::string topic_name(name_str);
-      private_pub_[handle] = CreatePublisher(transfer_format_, topic_name);
+      private_pub_[handle] = CreatePublisher(transfer_format_, config.lidar_topic_name);
     }
     return private_pub_[handle];
   } else {
@@ -642,16 +635,10 @@ std::shared_ptr<rclcpp::PublisherBase> Lddc::GetCurrentPublisher(uint8_t handle)
 std::shared_ptr<rclcpp::PublisherBase> Lddc::GetCurrentImuPublisher(uint8_t handle) {
   if (use_multi_topic_) {
     if (!private_imu_pub_[handle]) {
-      char name_str[48];
-      memset(name_str, 0, sizeof(name_str));
-      UserRawConfig config, config_tmp;
-      // lds_->GetRawConfigHandle(handle, config_tmp);
+      UserRawConfig config;
       LidarDevice *lidar = &lds_->lidars_[handle];
       lds_->GetRawConfig(lidar->info.broadcast_code, config);
-      snprintf(name_str, sizeof(name_str), "%s/livox/imu",
-          config.frame_id.substr(6).c_str());
-      std::string topic_name(name_str);
-      private_imu_pub_[handle] = CreatePublisher(kLivoxImuMsg, topic_name);
+      private_imu_pub_[handle] = CreatePublisher(kLivoxImuMsg, config.imu_topic_name);
     }
     return private_imu_pub_[handle];
   } else {

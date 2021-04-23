@@ -194,6 +194,8 @@ typedef struct {
   uint32_t extrinsic_parameter_source;
   bool enable_high_sensitivity;
   std::string frame_id;
+  std::string lidar_topic_name;
+  std::string imu_topic_name;
 } UserRawConfig;
 
 typedef struct {

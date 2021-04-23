@@ -706,12 +706,20 @@ int LdsLidar::ParseConfigFile(const char *pathname) {
               object["frame_id"].IsString()) {
                   config.frame_id = object["frame_id"].GetString();
           }
+          if (object.HasMember("lidar_topic_name") &&
+              object["lidar_topic_name"].IsString()) {
+                  config.lidar_topic_name = object["lidar_topic_name"].GetString();
+          }
+          if (object.HasMember("imu_topic_name") &&
+              object["imu_topic_name"].IsString()) {
+                  config.imu_topic_name = object["imu_topic_name"].GetString();
+          }
 
-          printf("broadcast code[%s] : %d %d %d %d %d %d frame_id[%s]\n",
+          printf("broadcast code[%s] : %d %d %d %d %d %d frame_id[%s] topic_name[ns + %s, %s]\n",
                  config.broadcast_code, config.enable_connect,
                  config.enable_fan, config.return_mode, config.coordinate,
                  config.imu_rate, config.extrinsic_parameter_source,
-                 config.frame_id.c_str());
+                 config.frame_id.c_str(), config.lidar_topic_name.c_str() ,config.imu_topic_name.c_str());
           if (config.enable_connect) {
             if (!AddBroadcastCodeToWhitelist(config.broadcast_code)) {
               if (AddRawUserConfig(config)) {
@@ -781,6 +789,8 @@ int LdsLidar::GetRawConfig(const char *broadcast_code, UserRawConfig &config) {
       config.extrinsic_parameter_source = ite_config.extrinsic_parameter_source;
       config.enable_high_sensitivity = ite_config.enable_high_sensitivity;
       config.frame_id = ite_config.frame_id;
+      config.lidar_topic_name = ite_config.lidar_topic_name;
+      config.imu_topic_name = ite_config.imu_topic_name;
       return 0;
     }
   }
