@@ -725,6 +725,10 @@ void Lddc::checkTemperature(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lds_->lidars_[i].info.state == kLidarStateInit) {
       stat.addf("progress", "%d%%", lds_->lidars_[i].info.status.progress);
+      if (lds_->lidars_[i].info.status.progress == 0){
+        level = DiagStatus::ERROR;
+        whole_level = std::max(whole_level, level);
+      }
       continue;
     }
 
@@ -759,6 +763,10 @@ void Lddc::checkVoltage(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lds_->lidars_[i].info.state == kLidarStateInit) {
       stat.addf("progress", "%d%%", lds_->lidars_[i].info.status.progress);
+      if (lds_->lidars_[i].info.status.progress == 0){
+        level = DiagStatus::ERROR;
+        whole_level = std::max(whole_level, level);
+      }
       continue;
     }
 
@@ -793,6 +801,10 @@ void Lddc::checkMotor(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lds_->lidars_[i].info.state == kLidarStateInit) {
       stat.addf("progress", "%d%%", lds_->lidars_[i].info.status.progress);
+      if (lds_->lidars_[i].info.status.progress == 0){
+        level = DiagStatus::ERROR;
+        whole_level = std::max(whole_level, level);
+      }
       continue;
     }
 
@@ -827,6 +839,10 @@ void Lddc::checkDirty(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lds_->lidars_[i].info.state == kLidarStateInit) {
       stat.addf("progress", "%d%%", lds_->lidars_[i].info.status.progress);
+      if (lds_->lidars_[i].info.status.progress == 0){
+        level = DiagStatus::ERROR;
+        whole_level = std::max(whole_level, level);
+      }
       continue;
     }
 
@@ -859,6 +875,10 @@ void Lddc::checkFirmware(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lds_->lidars_[i].info.state == kLidarStateInit) {
       stat.addf("progress", "%d%%", lds_->lidars_[i].info.status.progress);
+      if (lds_->lidars_[i].info.status.progress == 0){
+        level = DiagStatus::ERROR;
+        whole_level = std::max(whole_level, level);
+      }
       continue;
     }
 
@@ -891,6 +911,10 @@ void Lddc::checkPPSSignal(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lds_->lidars_[i].info.state == kLidarStateInit) {
       stat.addf("progress", "%d%%", lds_->lidars_[i].info.status.progress);
+      if (lds_->lidars_[i].info.status.progress == 0){
+        level = DiagStatus::ERROR;
+        whole_level = std::max(whole_level, level);
+      }
       continue;
     }
 
@@ -923,6 +947,10 @@ void Lddc::checkServiceLife(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lds_->lidars_[i].info.state == kLidarStateInit) {
       stat.addf("progress", "%d%%", lds_->lidars_[i].info.status.progress);
+      if (lds_->lidars_[i].info.status.progress == 0){
+        level = DiagStatus::ERROR;
+        whole_level = std::max(whole_level, level);
+      }
       continue;
     }
 
@@ -955,6 +983,10 @@ void Lddc::checkFan(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lds_->lidars_[i].info.state == kLidarStateInit) {
       stat.addf("progress", "%d%%", lds_->lidars_[i].info.status.progress);
+      if (lds_->lidars_[i].info.status.progress == 0){
+        level = DiagStatus::ERROR;
+        whole_level = std::max(whole_level, level);
+      }
       continue;
     }
 
@@ -987,6 +1019,10 @@ void Lddc::checkPTPSignal(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lds_->lidars_[i].info.state == kLidarStateInit) {
       stat.addf("progress", "%d%%", lds_->lidars_[i].info.status.progress);
+      if (lds_->lidars_[i].info.status.progress == 0){
+        level = DiagStatus::ERROR;
+        whole_level = std::max(whole_level, level);
+      }
       continue;
     }
 
@@ -1019,6 +1055,10 @@ void Lddc::checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     if (lds_->lidars_[i].info.state == kLidarStateInit) {
       stat.addf("progress", "%d%%", lds_->lidars_[i].info.status.progress);
+      if (lds_->lidars_[i].info.status.progress == 0){
+        level = DiagStatus::ERROR;
+        whole_level = std::max(whole_level, level);
+      }
       continue;
     }
 
