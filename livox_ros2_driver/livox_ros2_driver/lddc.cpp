@@ -705,6 +705,7 @@ void Lddc::onDiagnosticsTimer()
   for (uint32_t i = 0; i < kMaxSourceLidar; ++i) {
     if (lds_->lidars_[i].handle != kMaxSourceLidar) ++lidar_count_;
   }
+  if (lidar_count_all_ < lidar_count_) lidar_count_all_ = lidar_count_;
   updater_.force_update();
 }
 
@@ -717,7 +718,7 @@ void Lddc::checkTemperature(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
   int whole_level = DiagStatus::OK;
 
-  for (uint8_t i = 0; i < lidar_count_; ++i) {
+  for (uint8_t i = 0; i < lidar_count_all_; ++i) {
     int level = DiagStatus::OK;
 
     stat.add("broadcast code", lds_->lidars_[i].info.broadcast_code);
@@ -751,7 +752,7 @@ void Lddc::checkVoltage(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
   int whole_level = DiagStatus::OK;
 
-  for (uint8_t i = 0; i < lidar_count_; ++i) {
+  for (uint8_t i = 0; i < lidar_count_all_; ++i) {
     int level = DiagStatus::OK;
 
     stat.add("broadcast code", lds_->lidars_[i].info.broadcast_code);
@@ -785,7 +786,7 @@ void Lddc::checkMotor(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
   int whole_level = DiagStatus::OK;
 
-  for (uint8_t i = 0; i < lidar_count_; ++i) {
+  for (uint8_t i = 0; i < lidar_count_all_; ++i) {
     int level = DiagStatus::OK;
 
     stat.add("broadcast code", lds_->lidars_[i].info.broadcast_code);
@@ -819,7 +820,7 @@ void Lddc::checkDirty(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
   int whole_level = DiagStatus::OK;
 
-  for (uint8_t i = 0; i < lidar_count_; ++i) {
+  for (uint8_t i = 0; i < lidar_count_all_; ++i) {
     int level = DiagStatus::OK;
 
     stat.add("broadcast code", lds_->lidars_[i].info.broadcast_code);
@@ -851,7 +852,7 @@ void Lddc::checkFirmware(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
   int whole_level = DiagStatus::OK;
 
-  for (uint8_t i = 0; i < lidar_count_; ++i) {
+  for (uint8_t i = 0; i < lidar_count_all_; ++i) {
     int level = DiagStatus::OK;
 
     stat.add("broadcast code", lds_->lidars_[i].info.broadcast_code);
@@ -883,7 +884,7 @@ void Lddc::checkPPSSignal(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
   int whole_level = DiagStatus::OK;
 
-  for (uint8_t i = 0; i < lidar_count_; ++i) {
+  for (uint8_t i = 0; i < lidar_count_all_; ++i) {
     int level = DiagStatus::OK;
 
     stat.add("broadcast code", lds_->lidars_[i].info.broadcast_code);
@@ -915,7 +916,7 @@ void Lddc::checkServiceLife(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
   int whole_level = DiagStatus::OK;
 
-  for (uint8_t i = 0; i < lidar_count_; ++i) {
+  for (uint8_t i = 0; i < lidar_count_all_; ++i) {
     int level = DiagStatus::OK;
 
     stat.add("broadcast code", lds_->lidars_[i].info.broadcast_code);
@@ -947,7 +948,7 @@ void Lddc::checkFan(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
   int whole_level = DiagStatus::OK;
 
-  for (uint8_t i = 0; i < lidar_count_; ++i) {
+  for (uint8_t i = 0; i < lidar_count_all_; ++i) {
     int level = DiagStatus::OK;
 
     stat.add("broadcast code", lds_->lidars_[i].info.broadcast_code);
@@ -979,7 +980,7 @@ void Lddc::checkPTPSignal(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
   int whole_level = DiagStatus::OK;
 
-  for (uint8_t i = 0; i < lidar_count_; ++i) {
+  for (uint8_t i = 0; i < lidar_count_all_; ++i) {
     int level = DiagStatus::OK;
 
     stat.add("broadcast code", lds_->lidars_[i].info.broadcast_code);
@@ -1011,7 +1012,7 @@ void Lddc::checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
   int whole_level = DiagStatus::OK;
 
-  for (uint8_t i = 0; i < lidar_count_; ++i) {
+  for (uint8_t i = 0; i < lidar_count_all_; ++i) {
     int level = DiagStatus::OK;
 
     stat.add("broadcast code", lds_->lidars_[i].info.broadcast_code);

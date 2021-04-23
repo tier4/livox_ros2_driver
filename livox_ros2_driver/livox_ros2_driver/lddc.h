@@ -132,6 +132,7 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
   diagnostic_updater::Updater updater_;
   uint8_t lidar_count_;
+  uint8_t lidar_count_all_ = 0;
 
   const std::map<int, const char *> temperature_dict_ = {
     {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "High or Low"}, {DiagStatus::ERROR, "Extremely High or Extremely Low"}};
