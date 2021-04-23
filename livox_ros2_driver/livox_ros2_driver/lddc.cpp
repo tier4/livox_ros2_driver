@@ -224,12 +224,12 @@ uint32_t Lddc::PublishPointcloud2(LidarDataQueue *queue, uint32_t packet_num,
   if (kOutputToRos == output_type_) {
     publisher->publish(cloud);
   } else {
-#if 0    
+#if 0
     if (bag_) {
       bag_->write(p_publisher->getTopic(), rclcpp::Time(timestamp),
                   cloud);
     }
-#endif    
+#endif
   }
   if (!lidar->data_is_pubulished) {
     lidar->data_is_pubulished = true;
@@ -329,12 +329,12 @@ uint32_t Lddc::PublishPointcloudData(LidarDataQueue *queue, uint32_t packet_num,
   if (kOutputToRos == output_type_) {
     publisher->publish(cloud);
   } else {
-#if 0    
+#if 0
     if (bag_) {
       bag_->write(p_publisher->getTopic(), rclcpp::Time(timestamp),
                   cloud);
     }
-#endif    
+#endif
   }
   if (!lidar->data_is_pubulished) {
     lidar->data_is_pubulished = true;
@@ -453,16 +453,16 @@ uint32_t Lddc::PublishCustomPointcloud(LidarDataQueue *queue,
 
   rclcpp::Publisher<livox_interfaces::msg::CustomMsg>::SharedPtr publisher =
       std::dynamic_pointer_cast<rclcpp::Publisher
-      <livox_interfaces::msg::CustomMsg>>(GetCurrentPublisher(handle));  
+      <livox_interfaces::msg::CustomMsg>>(GetCurrentPublisher(handle));
   if (kOutputToRos == output_type_) {
     publisher->publish(livox_msg);
   } else {
-#if 0    
+#if 0
     if (bag_) {
       bag_->write(p_publisher->getTopic(), rclcpp::Time(timestamp),
           livox_msg);
     }
-#endif    
+#endif
   }
 
   if (!lidar->data_is_pubulished) {
@@ -510,12 +510,12 @@ uint32_t Lddc::PublishImuData(LidarDataQueue *queue, uint32_t packet_num,
   if (kOutputToRos == output_type_) {
     publisher->publish(imu_data);
   } else {
-#if 0    
+#if 0
     if (bag_) {
       bag_->write(p_publisher->getTopic(), rclcpp::Time(timestamp),
                   imu_data);
     }
-#endif    
+#endif
   }
   return published_packet;
 }
