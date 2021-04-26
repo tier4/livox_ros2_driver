@@ -244,9 +244,11 @@ void LdsLidar::OnDeviceChange(const DeviceInfo *info, DeviceEvent type) {
     if (p_lidar->connect_state == kConnectStateOff) {
       p_lidar->connect_state = kConnectStateOn;
       p_lidar->info = *info;
+      g_lds_ldiar->connected_lidars_[p_lidar->info.broadcast_code] = &p_lidar->info;
     }
   } else if (type == kEventDisconnect) {
     printf("Lidar[%s] disconnect!\n", info->broadcast_code);
+    g_lds_ldiar->connected_lidars_[p_lidar->info.broadcast_code] = nullptr;
     ResetLidar(p_lidar, kSourceRawLidar);
   } else if (type == kEventStateChange) {
     p_lidar->info = *info;
