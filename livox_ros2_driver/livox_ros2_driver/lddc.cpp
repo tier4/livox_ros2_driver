@@ -1132,7 +1132,7 @@ void Lddc::checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper & stat)
   for (const auto & lidar : lds_->connected_lidars_) {
     int level = DiagStatus::OK;
 
-    const auto & broadcast_code = lidar.first;
+    const auto & broadcast_code = lidar<<<<<<< tmp_tier4_master.first;
     const auto & device_info = lidar.second;
 
     if (device_info == nullptr) {
