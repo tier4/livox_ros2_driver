@@ -60,6 +60,7 @@ class LdsLvx : public Lds {
   bool IsStarted() { return start_read_lvx_; }
 
   void ReadLvxFile();
+  int GetRawConfig(const char *broadcast_code, UserRawConfig &config) override { return -1; }
 
   volatile bool is_initialized_;
   OutPacketBuffer packets_of_frame_;

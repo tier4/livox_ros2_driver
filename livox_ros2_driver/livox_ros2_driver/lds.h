@@ -194,6 +194,9 @@ typedef struct {
   uint32_t imu_rate;
   uint32_t extrinsic_parameter_source;
   bool enable_high_sensitivity;
+  std::string frame_id;
+  std::string lidar_topic_name;
+  std::string imu_topic_name;
 } UserRawConfig;
 
 typedef struct {
@@ -491,6 +494,7 @@ class Lds {
   virtual void PrepareExit(void);
   void UpdateLidarInfoByEthPacket(LidarDevice *p_lidar, \
       LivoxEthPacket* eth_packet);
+  virtual int GetRawConfig(const char *broadcast_code, UserRawConfig &config) = 0;
   uint8_t lidar_count_;                 /**< Lidar access handle. */
   LidarDevice lidars_[kMaxSourceLidar]; /**< The index is the handle */
   Semaphore semaphore_;

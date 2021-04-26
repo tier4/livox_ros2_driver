@@ -29,11 +29,12 @@
 #include <memory>
 #include <mutex>
 #include <thread>
+#include <iostream>
 
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"
 #include "rapidjson/stringbuffer.h"
-
+#include "rapidjson/error/en.h"
 using namespace std;
 
 namespace livox_ros {
@@ -703,11 +704,24 @@ int LdsLidar::ParseConfigFile(const char *pathname) {
             config.enable_high_sensitivity =
                 object["enable_high_sensitivity"].GetBool();
           }
+          if (object.HasMember("frame_id") &&
+              object["frame_id"].IsString()) {
+                  config.frame_id = object["frame_id"].GetString();
+          }
+          if (object.HasMember("lidar_topic_name") &&
+              object["lidar_topic_name"].IsString()) {
+                  config.lidar_topic_name = object["lidar_topic_name"].GetString();
+          }
+          if (object.HasMember("imu_topic_name") &&
+              object["imu_topic_name"].IsString()) {
+                  config.imu_topic_name = object["imu_topic_name"].GetString();
+          }
 
-          printf("broadcast code[%s] : %d %d %d %d %d %d\n",
+          printf("broadcast code[%s] : %d %d %d %d %d %d frame_id[%s] topic_name[ns + %s, %s]\n",
                  config.broadcast_code, config.enable_connect,
                  config.enable_fan, config.return_mode, config.coordinate,
-                 config.imu_rate, config.extrinsic_parameter_source);
+                 config.imu_rate, config.extrinsic_parameter_source,
+                 config.frame_id.c_str(), config.lidar_topic_name.c_str() ,config.imu_topic_name.c_str());
           if (config.enable_connect) {
             if (!AddBroadcastCodeToWhitelist(config.broadcast_code)) {
               if (AddRawUserConfig(config)) {
@@ -725,6 +739,8 @@ int LdsLidar::ParseConfigFile(const char *pathname) {
       enable_timesync_ = false;
     }
   } else {
+    std::cout << "error offset:" << doc.GetErrorOffset() << std::endl;
+    std::cout << "error pase:" << rapidjson::GetParseError_En(doc.GetParseError()) << std::endl;
     printf("User config file parse error[%d]\n",
            doc.ParseStream(config_file).HasParseError());
   }
@@ -774,6 +790,9 @@ int LdsLidar::GetRawConfig(const char *broadcast_code, UserRawConfig &config) {
       config.imu_rate = ite_config.imu_rate;
       config.extrinsic_parameter_source = ite_config.extrinsic_parameter_source;
       config.enable_high_sensitivity = ite_config.enable_high_sensitivity;
+      config.frame_id = ite_config.frame_id;
+      config.lidar_topic_name = ite_config.lidar_topic_name;
+      config.imu_topic_name = ite_config.imu_topic_name;
       return 0;
     }
   }

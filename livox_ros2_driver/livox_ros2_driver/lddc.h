@@ -95,7 +95,7 @@ private:
   std::shared_ptr<rclcpp::PublisherBase> GetCurrentImuPublisher(uint8_t handle);
   void PollingLidarPointCloudData(uint8_t handle, LidarDevice *lidar);
   void PollingLidarImuData(uint8_t handle, LidarDevice *lidar);
-  void InitPointcloud2MsgHeader(sensor_msgs::msg::PointCloud2& cloud);
+  void InitPointcloud2MsgHeader(sensor_msgs::msg::PointCloud2& cloud, const std::string& frame_id);
   void FillPointsToPclMsg(PointCloud& pcl_msg, \
       LivoxPointXyzrtl* src_point, uint32_t num);
   void FillPointsToCustomMsg(livox_interfaces::msg::CustomMsg& livox_msg, \
