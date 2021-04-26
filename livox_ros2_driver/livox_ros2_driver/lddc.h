@@ -134,6 +134,8 @@ private:
   uint8_t lidar_count_;
   uint8_t lidar_count_all_ = 0;
 
+  std::vector<char[16]> broadcast_code_list_{std::vector<char[16]>(kMaxSourceLidar)};
+
   const std::map<int, const char *> temperature_dict_ = {
     {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "High or Low"}, {DiagStatus::ERROR, "Extremely High or Extremely Low"}};
 
