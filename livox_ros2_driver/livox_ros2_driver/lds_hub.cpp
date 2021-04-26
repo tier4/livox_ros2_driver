@@ -711,5 +711,4 @@ int LdsHub::GetRawConfig(const char *broadcast_code, UserRawConfig &config) {
   return -1;
 }
 
-
 }  // namespace livox_ros
