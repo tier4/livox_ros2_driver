@@ -477,7 +477,11 @@ uint32_t Lddc::PublishImuData(LidarDataQueue *queue, uint32_t packet_num,
   uint32_t published_packet = 0;
 
   sensor_msgs::msg::Imu imu_data;
-  imu_data.header.frame_id.assign(frame_id_);
+
+  LidarDevice *lidar = &lds_->lidars_[handle];
+  UserRawConfig config;
+  lds_->GetRawConfig(lidar->info.broadcast_code, config);
+  imu_data.header.frame_id.assign(config.frame_id);
 
   uint8_t data_source = lds_->lidars_[handle].data_src;
   StoragePacket storage_packet;
