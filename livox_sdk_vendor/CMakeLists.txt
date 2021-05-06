@@ -5,7 +5,7 @@ project(livox_sdk_vendor)
 find_package(ament_cmake REQUIRED)
 
 macro(build_livox_sdk)
-  set(livox_sdk_REV "v2.3.0")
+  set(livox_sdk_REV "cancle_heartbeat_timeout")
   set(extra_cmake_args)
 
   get_property(multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
