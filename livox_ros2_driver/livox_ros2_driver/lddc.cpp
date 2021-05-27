@@ -1141,4 +1141,43 @@ void Lddc::checkConnection(diagnostic_updater::DiagnosticStatusWrapper & stat)
     stat.summary(DiagStatus::OK, "OK");
   }
 }
+
+void Lddc::checkConnect(diagnostic_updater::DiagnosticStatusWrapper & stat)
+{
+  if (lidar_count_ == 0) {
+    stat.summary(DiagStatus::WARN, "No LiDARs Connected");
+    return;
+  }
+
+  int whole_level = DiagStatus::OK;
+  std::string error_str = "";
+
+  for (const auto & lidar : lds_->connected_lidars_) {
+    int level = DiagStatus::OK;
+
+    const auto & broadcast_code = lidar.first;
+    const auto & device_info = lidar.second;
+
+    if (device_info == nullptr) {
+      error_str = "LiDAR disconnected";
+      stat.add(broadcast_code, "disconnected");
+      continue;
+    }
+
+    if (device_info->state == kLidarStateInit) {
+      stat.addf(broadcast_code, "%d%%", device_info->status.progress);
+      continue;
+    }
+
+    stat.add(broadcast_code, connect_dict_.at(level));
+    whole_level = std::max(whole_level, level);
+  }
+
+  if (!error_str.empty()) {
+    stat.summary(DiagStatus::ERROR, error_str);
+  }
+  else {
+    stat.summary(whole_level, connect_dict_.at(whole_level));
+  }
+}
 }  // namespace livox_ros
