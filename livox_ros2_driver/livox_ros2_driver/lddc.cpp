@@ -694,6 +694,7 @@ void Lddc::initializeDiagnostics()
   updater_.add("livox_fan_status", this, &Lddc::checkFan);
   updater_.add("livox_ptp_signal", this, &Lddc::checkPTPSignal);
   updater_.add("livox_time_sync", this, &Lddc::checkTimeSync);
+  updater_.add("livox_connect", this, &Lddc::checkConnect);
   updater_.setHardwareID("livox");
 
   auto on_timer = std::bind(&Lddc::onDiagnosticsTimer, this);
@@ -729,7 +730,6 @@ void Lddc::checkTemperature(diagnostic_updater::DiagnosticStatusWrapper & stat)
     const auto & device_info = lidar.second;
 
     if (device_info == nullptr) {
-      error_str = "LiDAR disconnected";
       stat.add(broadcast_code, "disconnected");
       continue;
     }
@@ -776,7 +776,6 @@ void Lddc::checkVoltage(diagnostic_updater::DiagnosticStatusWrapper & stat)
     const auto & device_info = lidar.second;
 
     if (device_info == nullptr) {
-      error_str = "LiDAR disconnected";
       stat.add(broadcast_code, "disconnected");
       continue;
     }
@@ -823,7 +822,6 @@ void Lddc::checkMotor(diagnostic_updater::DiagnosticStatusWrapper & stat)
     const auto & device_info = lidar.second;
 
     if (device_info == nullptr) {
-      error_str = "LiDAR disconnected";
       stat.add(broadcast_code, "disconnected");
       continue;
     }
@@ -870,7 +868,6 @@ void Lddc::checkDirty(diagnostic_updater::DiagnosticStatusWrapper & stat)
     const auto & device_info = lidar.second;
 
     if (device_info == nullptr) {
-      error_str = "LiDAR disconnected";
       stat.add(broadcast_code, "disconnected");
       continue;
     }
@@ -915,7 +912,6 @@ void Lddc::checkFirmware(diagnostic_updater::DiagnosticStatusWrapper & stat)
     const auto & device_info = lidar.second;
 
     if (device_info == nullptr) {
-      error_str = "LiDAR disconnected";
       stat.add(broadcast_code, "disconnected");
       continue;
     }
@@ -960,7 +956,6 @@ void Lddc::checkPPSSignal(diagnostic_updater::DiagnosticStatusWrapper & stat)
     const auto & device_info = lidar.second;
 
     if (device_info == nullptr) {
-      error_str = "LiDAR disconnected";
       stat.add(broadcast_code, "disconnected");
       continue;
     }
@@ -1005,7 +1000,6 @@ void Lddc::checkServiceLife(diagnostic_updater::DiagnosticStatusWrapper & stat)
     const auto & device_info = lidar.second;
 
     if (device_info == nullptr) {
-      error_str = "LiDAR disconnected";
       stat.add(broadcast_code, "disconnected");
       continue;
     }
@@ -1050,7 +1044,6 @@ void Lddc::checkFan(diagnostic_updater::DiagnosticStatusWrapper & stat)
     const auto & device_info = lidar.second;
 
     if (device_info == nullptr) {
-      error_str = "LiDAR disconnected";
       stat.add(broadcast_code, "disconnected");
       continue;
     }
@@ -1095,7 +1088,6 @@ void Lddc::checkPTPSignal(diagnostic_updater::DiagnosticStatusWrapper & stat)
     const auto & device_info = lidar.second;
 
     if (device_info == nullptr) {
-      error_str = "LiDAR disconnected";
       stat.add(broadcast_code, "disconnected");
       continue;
     }
@@ -1140,7 +1132,6 @@ void Lddc::checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper & stat)
     const auto & device_info = lidar.second;
 
     if (device_info == nullptr) {
-      error_str = "LiDAR disconnected";
       stat.add(broadcast_code, "disconnected");
       continue;
     }
@@ -1165,6 +1156,45 @@ void Lddc::checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper & stat)
   }
   else {
     stat.summary(whole_level, time_sync_dict_.at(whole_level));
+  }
+}
+
+void Lddc::checkConnect(diagnostic_updater::DiagnosticStatusWrapper & stat)
+{
+  if (lidar_count_ == 0) {
+    stat.summary(DiagStatus::WARN, "No LiDARs Connected");
+    return;
+  }
+
+  int whole_level = DiagStatus::OK;
+  std::string error_str = "";
+
+  for (const auto & lidar : lds_->connected_lidars_) {
+    int level = DiagStatus::OK;
+
+    const auto & broadcast_code = lidar.first;
+    const auto & device_info = lidar.second;
+
+    if (device_info == nullptr) {
+      error_str = "LiDAR disconnected";
+      stat.add(broadcast_code, "disconnected");
+      continue;
+    }
+
+    if (device_info->state == kLidarStateInit) {
+      stat.addf(broadcast_code, "%d%%", device_info->status.progress);
+      continue;
+    }
+
+    stat.add(broadcast_code, connect_dict_.at(level));
+    whole_level = std::max(whole_level, level);
+  }
+
+  if (!error_str.empty()) {
+    stat.summary(DiagStatus::ERROR, error_str);
+  }
+  else {
+    stat.summary(whole_level, connect_dict_.at(whole_level));
   }
 }
 }  // namespace livox_ros
