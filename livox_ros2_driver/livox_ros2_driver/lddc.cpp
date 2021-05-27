@@ -694,7 +694,7 @@ void Lddc::initializeDiagnostics()
   updater_.add("livox_fan_status", this, &Lddc::checkFan);
   updater_.add("livox_ptp_signal", this, &Lddc::checkPTPSignal);
   updater_.add("livox_time_sync", this, &Lddc::checkTimeSync);
-  updater_.add("livox_connect", this, &Lddc::checkConnect);
+  updater_.add("livox_connection", this, &Lddc::checkConnection);
   updater_.setHardwareID("livox");
 
   auto on_timer = std::bind(&Lddc::onDiagnosticsTimer, this);
@@ -1159,7 +1159,7 @@ void Lddc::checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper & stat)
   }
 }
 
-void Lddc::checkConnect(diagnostic_updater::DiagnosticStatusWrapper & stat)
+void Lddc::checkConnection(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   if (lidar_count_ == 0) {
     stat.summary(DiagStatus::WARN, "No LiDARs Connected");
@@ -1186,7 +1186,7 @@ void Lddc::checkConnect(diagnostic_updater::DiagnosticStatusWrapper & stat)
       continue;
     }
 
-    stat.add(broadcast_code, connect_dict_.at(level));
+    stat.add(broadcast_code, connection_dict_.at(level));
     whole_level = std::max(whole_level, level);
   }
 
@@ -1194,7 +1194,7 @@ void Lddc::checkConnect(diagnostic_updater::DiagnosticStatusWrapper & stat)
     stat.summary(DiagStatus::ERROR, error_str);
   }
   else {
-    stat.summary(whole_level, connect_dict_.at(whole_level));
+    stat.summary(whole_level, connection_dict_.at(whole_level));
   }
 }
 }  // namespace livox_ros

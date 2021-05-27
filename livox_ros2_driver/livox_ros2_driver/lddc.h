@@ -113,7 +113,7 @@ private:
   void checkFan(diagnostic_updater::DiagnosticStatusWrapper & stat);
   void checkPTPSignal(diagnostic_updater::DiagnosticStatusWrapper & stat);
   void checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper & stat);
-  void checkConnect(diagnostic_updater::DiagnosticStatusWrapper & stat);
+  void checkConnection(diagnostic_updater::DiagnosticStatusWrapper & stat);
 
   uint8_t transfer_format_;
   uint8_t use_multi_topic_;
@@ -164,7 +164,7 @@ private:
   const std::map<int, const char *> time_sync_dict_ = {
     {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "System time synchronization is abnormal"}, {DiagStatus::ERROR, "unused"}};
 
-  const std::map<int, const char *> connect_dict_ = {
+  const std::map<int, const char *> connection_dict_ = {
     {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "disconnected"}, {DiagStatus::ERROR, "disconnected"}};
 
 };
