@@ -1142,7 +1142,7 @@ void Lddc::checkConnection(diagnostic_updater::DiagnosticStatusWrapper & stat)
   }
 }
 
-void Lddc::checkConnect(diagnostic_updater::DiagnosticStatusWrapper & stat)
+void Lddc::checkConnection(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   if (lidar_count_ == 0) {
     stat.summary(DiagStatus::WARN, "No LiDARs Connected");
@@ -1169,7 +1169,7 @@ void Lddc::checkConnect(diagnostic_updater::DiagnosticStatusWrapper & stat)
       continue;
     }
 
-    stat.add(broadcast_code, connect_dict_.at(level));
+    stat.add(broadcast_code, connection_dict_.at(level));
     whole_level = std::max(whole_level, level);
   }
 
@@ -1177,7 +1177,7 @@ void Lddc::checkConnect(diagnostic_updater::DiagnosticStatusWrapper & stat)
     stat.summary(DiagStatus::ERROR, error_str);
   }
   else {
-    stat.summary(whole_level, connect_dict_.at(whole_level));
+    stat.summary(whole_level, connection_dict_.at(whole_level));
   }
 }
 }  // namespace livox_ros

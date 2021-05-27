@@ -164,7 +164,7 @@ private:
   const std::map<int, const char *> time_sync_dict_ = {
     {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "System time synchronization is abnormal"}, {DiagStatus::ERROR, "unused"}};
 
-  const std::map<int, const char *> connect_dict_ = {
+  const std::map<int, const char *> connection_dict_ = {
     {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "disconnected"}, {DiagStatus::ERROR, "disconnected"}};
 
 };
