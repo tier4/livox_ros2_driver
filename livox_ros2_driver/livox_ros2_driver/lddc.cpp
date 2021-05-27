@@ -160,6 +160,10 @@ uint32_t Lddc::PublishPointcloud2(LidarDataQueue *queue, uint32_t packet_num,
   cloud.data.resize(packet_num * kMaxPointPerEthPacket *
                     sizeof(LivoxPointXyzrtl));
   cloud.point_step = sizeof(LivoxPointXyzrtl);
+  if (config.use_ros_time){
+    const auto current_time = cur_node_->now();
+    cloud.header.stamp = current_time;
+  }
 
   uint8_t *point_base = cloud.data.data();
   uint8_t data_source = lidar->data_src;
@@ -183,7 +187,7 @@ uint32_t Lddc::PublishPointcloud2(LidarDataQueue *queue, uint32_t packet_num,
       }
     }
     /** Use the first packet timestamp as pointcloud2 msg timestamp */
-    if (!published_packet) {
+    if (!published_packet && !config.use_ros_time) {
       cloud.header.stamp = rclcpp::Time(timestamp);
     }
     uint32_t single_point_num = storage_packet.point_num * echo_num;
@@ -482,6 +486,10 @@ uint32_t Lddc::PublishImuData(LidarDataQueue *queue, uint32_t packet_num,
   UserRawConfig config;
   lds_->GetRawConfig(lidar->info.broadcast_code, config);
   imu_data.header.frame_id.assign(config.frame_id);
+  if (config.use_ros_time){
+    const auto current_time = cur_node_->now();
+    imu_data.header.stamp = current_time;
+  }
 
   uint8_t data_source = lds_->lidars_[handle].data_src;
   StoragePacket storage_packet;
@@ -489,7 +497,7 @@ uint32_t Lddc::PublishImuData(LidarDataQueue *queue, uint32_t packet_num,
   LivoxEthPacket *raw_packet =
       reinterpret_cast<LivoxEthPacket *>(storage_packet.raw_data);
   timestamp = GetStoragePacketTimestamp(&storage_packet, data_source);
-  if (timestamp) {
+  if (timestamp && !config.use_ros_time) {
     imu_data.header.stamp =
         rclcpp::Time(timestamp);  // to ros time stamp
   }

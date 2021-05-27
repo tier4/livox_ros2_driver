@@ -684,6 +684,9 @@ int LdsLidar::ParseConfigFile(const char *pathname) {
           if (object.HasMember("enable_fan") && object["enable_fan"].IsBool()) {
             config.enable_fan = object["enable_fan"].GetBool();
           }
+          if (object.HasMember("use_ros_time") && object["use_ros_time"].IsBool()) {
+            config.use_ros_time = object["use_ros_time"].GetBool();
+          }
           if (object.HasMember("return_mode") &&
               object["return_mode"].IsInt()) {
             config.return_mode = object["return_mode"].GetInt();
@@ -785,6 +788,7 @@ int LdsLidar::GetRawConfig(const char *broadcast_code, UserRawConfig &config) {
     if (strncmp(ite_config.broadcast_code, broadcast_code,
                 kBroadcastCodeSize) == 0) {
       config.enable_fan = ite_config.enable_fan;
+      config.use_ros_time = ite_config.use_ros_time;
       config.return_mode = ite_config.return_mode;
       config.coordinate = ite_config.coordinate;
       config.imu_rate = ite_config.imu_rate;
