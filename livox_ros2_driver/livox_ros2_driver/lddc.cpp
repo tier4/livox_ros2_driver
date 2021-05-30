@@ -764,6 +764,7 @@ void Lddc::checkTemperature(diagnostic_updater::DiagnosticStatusWrapper & stat)
     whole_level = std::max(whole_level, level);
   }
 
+  if (whole_level == DiagStatus::OK) error_str = temperature_dict_.at(whole_level);
   stat.summary(whole_level, error_str);
 }
 
@@ -810,6 +811,7 @@ void Lddc::checkVoltage(diagnostic_updater::DiagnosticStatusWrapper & stat)
     whole_level = std::max(whole_level, level);
   }
 
+  if (whole_level == DiagStatus::OK) error_str = voltage_dict_.at(whole_level);
   stat.summary(whole_level, error_str);
 }
 
@@ -856,6 +858,7 @@ void Lddc::checkMotor(diagnostic_updater::DiagnosticStatusWrapper & stat)
     whole_level = std::max(whole_level, level);
   }
 
+  if (whole_level == DiagStatus::OK) error_str = motor_dict_.at(whole_level);
   stat.summary(whole_level, error_str);
 }
 
@@ -900,6 +903,7 @@ void Lddc::checkDirty(diagnostic_updater::DiagnosticStatusWrapper & stat)
     whole_level = std::max(whole_level, level);
   }
 
+  if (whole_level == DiagStatus::OK) error_str = dirty_dict_.at(whole_level);
   stat.summary(whole_level, error_str);
 }
 
@@ -943,6 +947,7 @@ void Lddc::checkFirmware(diagnostic_updater::DiagnosticStatusWrapper & stat)
     whole_level = std::max(whole_level, level);
   }
 
+  if (whole_level == DiagStatus::OK) error_str = firmware_dict_.at(whole_level);
   stat.summary(whole_level, error_str);
 }
 
@@ -986,6 +991,7 @@ void Lddc::checkPPSSignal(diagnostic_updater::DiagnosticStatusWrapper & stat)
     whole_level = std::max(whole_level, level);
   }
 
+  if (whole_level == DiagStatus::OK) error_str = pps_dict_.at(whole_level);
   stat.summary(whole_level, error_str);
 }
 
@@ -1029,6 +1035,7 @@ void Lddc::checkServiceLife(diagnostic_updater::DiagnosticStatusWrapper & stat)
     whole_level = std::max(whole_level, level);
   }
 
+  if (whole_level == DiagStatus::OK) error_str = life_dict_.at(whole_level);
   stat.summary(whole_level, error_str);
 }
 
@@ -1072,6 +1079,7 @@ void Lddc::checkFan(diagnostic_updater::DiagnosticStatusWrapper & stat)
     whole_level = std::max(whole_level, level);
   }
 
+  if (whole_level == DiagStatus::OK) error_str = fan_dict_.at(whole_level);
   stat.summary(whole_level, error_str);
 }
 
@@ -1116,6 +1124,7 @@ void Lddc::checkPTPSignal(diagnostic_updater::DiagnosticStatusWrapper & stat)
     whole_level = std::max(whole_level, level);
   }
 
+  if (whole_level == DiagStatus::OK) error_str = ptp_dict_.at(whole_level);
   stat.summary(whole_level, error_str);
 }
 
@@ -1159,6 +1168,7 @@ void Lddc::checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper & stat)
     whole_level = std::max(whole_level, level);
   }
 
+  if (whole_level == DiagStatus::OK) error_str = time_sync_dict_.at(whole_level);
   stat.summary(whole_level, error_str);
 }
 
