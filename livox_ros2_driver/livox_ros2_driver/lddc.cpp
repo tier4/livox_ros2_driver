@@ -714,7 +714,7 @@ void Lddc::onDiagnosticsTimer()
     connected_lidar_count_ = lds_->connected_lidars_.size();
     for (const auto &lidar : lds_->connected_lidars_)
     {
-      std::string broadcast_code = lidar.first;
+      const std::string broadcast_code = lidar.first;
 
       updater_.add(
           fmt::format("livox_temperature_{}", broadcast_code),
@@ -787,9 +787,9 @@ void Lddc::onDiagnosticsTimer()
 void Lddc::getLidarByBroadcastcode(std::pair<std::string, DeviceInfo *> &lidar,
                                    const std::string &broadcast_code)
 {
-  for (const auto & tmp_lidar : lds_->connected_lidars_) {
-    const std::string tmp_broadcast_code = tmp_lidar.first;
-    if (tmp_broadcast_code == broadcast_code) lidar = tmp_lidar;
+  for (const auto & connected_lidar : lds_->connected_lidars_) {
+    const std::string connected_broadcast_code = connected_lidar.first;
+    if (connected_broadcast_code == broadcast_code) lidar = connected_lidar;
   }
 }
 
