@@ -690,7 +690,6 @@ void Lddc::initializeDiagnostics()
 {
   using std::chrono_literals::operator""s;
 
-  // bool check_pps_signal =
   check_pps_signal_ =
     cur_node_->declare_parameter("check_pps_signal", false);
 
