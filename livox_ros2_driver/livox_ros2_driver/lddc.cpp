@@ -704,67 +704,49 @@ void Lddc::initializeDiagnostics()
 
 void Lddc::registerDiagnosticsUpdater(const std::string &broadcast_code)
 {
-  updater_.add(
-      fmt::format("livox_temperature-{}", broadcast_code),
-      std::bind(
-          &Lddc::checkTemperature, this, std::placeholders::_1,
-          broadcast_code));
+  if (registered_code_set_.count(broadcast_code) == 0) {
+    updater_.add(fmt::format("livox_temperature-{}", broadcast_code),
+                 std::bind(&Lddc::checkTemperature, this, std::placeholders::_1,
+                           broadcast_code));
 
-  updater_.add(
-      fmt::format("livox_internal_voltage-{}", broadcast_code),
-      std::bind(
-          &Lddc::checkVoltage, this, std::placeholders::_1,
-          broadcast_code));
+    updater_.add(fmt::format("livox_internal_voltage-{}", broadcast_code),
+                 std::bind(&Lddc::checkVoltage, this, std::placeholders::_1,
+                           broadcast_code));
 
-  updater_.add(
-      fmt::format("livox_motor_status-{}", broadcast_code),
-      std::bind(
-          &Lddc::checkMotor, this, std::placeholders::_1,
-          broadcast_code));
+    updater_.add(fmt::format("livox_motor_status-{}", broadcast_code),
+                 std::bind(&Lddc::checkMotor, this, std::placeholders::_1,
+                           broadcast_code));
 
-  updater_.add(
-      fmt::format("livox_optical_window-{}", broadcast_code),
-      std::bind(
-          &Lddc::checkDirty, this, std::placeholders::_1,
-          broadcast_code));
+    updater_.add(fmt::format("livox_optical_window-{}", broadcast_code),
+                 std::bind(&Lddc::checkDirty, this, std::placeholders::_1,
+                           broadcast_code));
 
-  updater_.add(
-      fmt::format("livox_firmware_status-{}", broadcast_code),
-      std::bind(
-          &Lddc::checkFirmware, this, std::placeholders::_1,
-          broadcast_code));
+    updater_.add(fmt::format("livox_firmware_status-{}", broadcast_code),
+                 std::bind(&Lddc::checkFirmware, this, std::placeholders::_1,
+                           broadcast_code));
 
-  if (check_pps_signal_) {
-    updater_.add(
-        fmt::format("livox_pps_signal-{}", broadcast_code),
-        std::bind(
-            &Lddc::checkPPSSignal, this, std::placeholders::_1,
-            broadcast_code));
+    if (check_pps_signal_) {
+      updater_.add(fmt::format("livox_pps_signal-{}", broadcast_code),
+                   std::bind(&Lddc::checkPPSSignal, this, std::placeholders::_1,
+                             broadcast_code));
+    }
+
+    updater_.add(fmt::format("livox_service_life-{}", broadcast_code),
+                 std::bind(&Lddc::checkServiceLife, this, std::placeholders::_1,
+                           broadcast_code));
+
+    updater_.add(fmt::format("livox_fan_status-{}", broadcast_code),
+                 std::bind(&Lddc::checkFan, this, std::placeholders::_1,
+                           broadcast_code));
+
+    updater_.add(fmt::format("livox_time_sync-{}", broadcast_code),
+                 std::bind(&Lddc::checkTimeSync, this, std::placeholders::_1,
+                           broadcast_code));
+
+    updater_.add(fmt::format("livox_connection-{}", broadcast_code),
+                 std::bind(&Lddc::checkConnection, this, std::placeholders::_1,
+                           broadcast_code));
   }
-
-  updater_.add(
-      fmt::format("livox_service_life-{}", broadcast_code),
-      std::bind(
-          &Lddc::checkServiceLife, this, std::placeholders::_1,
-          broadcast_code));
-
-  updater_.add(
-      fmt::format("livox_fan_status-{}", broadcast_code),
-      std::bind(
-          &Lddc::checkFan, this, std::placeholders::_1,
-          broadcast_code));
-
-  updater_.add(
-      fmt::format("livox_time_sync-{}", broadcast_code),
-      std::bind(
-          &Lddc::checkTimeSync, this, std::placeholders::_1,
-          broadcast_code));
-
-  updater_.add(
-      fmt::format("livox_connection-{}", broadcast_code),
-      std::bind(
-          &Lddc::checkConnection, this, std::placeholders::_1,
-          broadcast_code));
 }
 
 void Lddc::onDiagnosticsTimer()
