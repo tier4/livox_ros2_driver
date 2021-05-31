@@ -137,7 +137,7 @@ private:
   diagnostic_updater::Updater updater_;
   uint8_t lidar_count_;
   uint8_t connected_lidar_count_ = 0;
-  std::multiset<std::string> registered_code_set_;
+  std::set<std::string> registered_code_set_;
 
   const std::map<int, const char *> temperature_dict_ = {
     {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "High or Low"}, {DiagStatus::ERROR, "Extremely High or Extremely Low"}};
