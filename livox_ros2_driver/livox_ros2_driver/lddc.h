@@ -103,17 +103,18 @@ private:
       uint32_t point_interval, uint32_t echo_num);
 
   void onDiagnosticsTimer();
-  void checkTemperature(diagnostic_updater::DiagnosticStatusWrapper & stat);
-  void checkVoltage(diagnostic_updater::DiagnosticStatusWrapper & stat);
-  void checkMotor(diagnostic_updater::DiagnosticStatusWrapper & stat);
-  void checkDirty(diagnostic_updater::DiagnosticStatusWrapper & stat);
-  void checkFirmware(diagnostic_updater::DiagnosticStatusWrapper & stat);
-  void checkPPSSignal(diagnostic_updater::DiagnosticStatusWrapper & stat);
-  void checkServiceLife(diagnostic_updater::DiagnosticStatusWrapper & stat);
-  void checkFan(diagnostic_updater::DiagnosticStatusWrapper & stat);
-  void checkPTPSignal(diagnostic_updater::DiagnosticStatusWrapper & stat);
-  void checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper & stat);
-  void checkConnection(diagnostic_updater::DiagnosticStatusWrapper & stat);
+  void checkTemperature(diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & broadcast_code);
+  void checkVoltage(diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & broadcast_code);
+  void checkMotor(diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & broadcast_code);
+  void checkDirty(diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & broadcast_code);
+  void checkFirmware(diagnostic_updater::DiagnosticStatusWrapper &stat, const std::string &broadcast_code);
+  void checkPPSSignal(diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & broadcast_code);
+  void checkServiceLife(diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & broadcast_code);
+  void checkFan(diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & broadcast_code);
+  void checkPTPSignal(diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & broadcast_code);
+  void checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & broadcast_code);
+  void checkConnection(diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & broadcast_code);
+  void getLidarByBroadcastcode(std::pair<std::string, DeviceInfo*> & lidar, const std::string & broadcast_code);
 
   uint8_t transfer_format_;
   uint8_t use_multi_topic_;
@@ -122,6 +123,7 @@ private:
   double publish_frq_;
   uint32_t publish_period_ns_;
   std::string frame_id_;
+  bool check_pps_signal_;
 
   std::shared_ptr<rclcpp::PublisherBase>private_pub_[kMaxSourceLidar];
   std::shared_ptr<rclcpp::PublisherBase>global_pub_;
@@ -133,6 +135,7 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
   diagnostic_updater::Updater updater_;
   uint8_t lidar_count_;
+  uint8_t connected_lidar_count_ = 0;
 
   const std::map<int, const char *> temperature_dict_ = {
     {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "High or Low"}, {DiagStatus::ERROR, "Extremely High or Extremely Low"}};

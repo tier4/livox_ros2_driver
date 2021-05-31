@@ -39,6 +39,9 @@
 #include "lds_lidar.h"
 #include "lds_lvx.h"
 
+#define FMT_HEADER_ONLY
+#include "fmt/format.h"
+
 namespace livox_ros {
 
 /** Lidar Data Distribute Control--------------------------------------------*/
@@ -687,22 +690,10 @@ void Lddc::initializeDiagnostics()
 {
   using std::chrono_literals::operator""s;
 
-  bool check_pps_signal =
+  // bool check_pps_signal =
+  check_pps_signal_ =
     cur_node_->declare_parameter("check_pps_signal", false);
 
-  updater_.add("livox_temperature", this, &Lddc::checkTemperature);
-  updater_.add("livox_internal_voltage", this, &Lddc::checkVoltage);
-  updater_.add("livox_motor_status", this, &Lddc::checkMotor);
-  updater_.add("livox_optical_window", this, &Lddc::checkDirty);
-  updater_.add("livox_firmware_status", this, &Lddc::checkFirmware);
-  if (check_pps_signal) {
-    updater_.add("livox_pps_signal", this, &Lddc::checkPPSSignal);
-  }
-  updater_.add("livox_service_life", this, &Lddc::checkServiceLife);
-  updater_.add("livox_fan_status", this, &Lddc::checkFan);
-  updater_.add("livox_ptp_signal", this, &Lddc::checkPTPSignal);
-  updater_.add("livox_time_sync", this, &Lddc::checkTimeSync);
-  updater_.add("livox_connection", this, &Lddc::checkConnection);
   updater_.setHardwareID("livox");
 
   auto on_timer = std::bind(&Lddc::onDiagnosticsTimer, this);
@@ -718,493 +709,461 @@ void Lddc::onDiagnosticsTimer()
   for (uint32_t i = 0; i < kMaxSourceLidar; ++i) {
     if (lds_->lidars_[i].handle != kMaxSourceLidar) ++lidar_count_;
   }
+
+  if (connected_lidar_count_ != lds_->connected_lidars_.size())
+  {
+    connected_lidar_count_ = lds_->connected_lidars_.size();
+    for (const auto &lidar : lds_->connected_lidars_)
+    {
+      std::string broadcast_code = lidar.first;
+
+      updater_.add(
+          fmt::format("livox_temperature_{}", broadcast_code),
+          std::bind(
+              &Lddc::checkTemperature, this, std::placeholders::_1,
+              broadcast_code));
+
+      updater_.add(
+          fmt::format("livox_internal_voltage_{}", broadcast_code),
+          std::bind(
+              &Lddc::checkVoltage, this, std::placeholders::_1,
+              broadcast_code));
+
+      updater_.add(
+          fmt::format("livox_motor_status_{}", broadcast_code),
+          std::bind(
+              &Lddc::checkMotor, this, std::placeholders::_1,
+              broadcast_code));
+
+      updater_.add(
+          fmt::format("livox_optical_window_{}", broadcast_code),
+          std::bind(
+              &Lddc::checkDirty, this, std::placeholders::_1,
+              broadcast_code));
+
+      updater_.add(
+          fmt::format("livox_firmware_status_{}", broadcast_code),
+          std::bind(
+              &Lddc::checkFirmware, this, std::placeholders::_1,
+              broadcast_code));
+
+      if (check_pps_signal_)
+      {
+        updater_.add(
+            fmt::format("livox_pps_signal_{}", broadcast_code),
+            std::bind(
+                &Lddc::checkPPSSignal, this, std::placeholders::_1,
+                broadcast_code));
+      }
+
+      updater_.add(
+          fmt::format("livox_service_life_{}", broadcast_code),
+          std::bind(
+              &Lddc::checkServiceLife, this, std::placeholders::_1,
+              broadcast_code));
+
+      updater_.add(
+          fmt::format("livox_fan_status_{}", broadcast_code),
+          std::bind(
+              &Lddc::checkFan, this, std::placeholders::_1,
+              broadcast_code));
+
+      updater_.add(
+          fmt::format("livox_time_sync{}", broadcast_code),
+          std::bind(
+              &Lddc::checkTimeSync, this, std::placeholders::_1,
+              broadcast_code));
+
+      updater_.add(
+          fmt::format("livox_connection_{}", broadcast_code),
+          std::bind(
+              &Lddc::checkConnection, this, std::placeholders::_1,
+              broadcast_code));
+    }
+  }
+
   updater_.force_update();
 }
 
-void Lddc::checkTemperature(diagnostic_updater::DiagnosticStatusWrapper & stat)
+void Lddc::getLidarByBroadcastcode(std::pair<std::string, DeviceInfo *> &lidar,
+                                   const std::string &broadcast_code)
 {
-  if (lidar_count_ == 0) {
-    stat.summary(DiagStatus::WARN, "No LiDARs Connected");
-    return;
+  for (const auto & tmp_lidar : lds_->connected_lidars_) {
+    const std::string tmp_broadcast_code = tmp_lidar.first;
+    if (tmp_broadcast_code == broadcast_code) lidar = tmp_lidar;
   }
+}
 
-  int whole_level = DiagStatus::OK;
-  std::string error_str = "";
+void Lddc::checkTemperature(diagnostic_updater::DiagnosticStatusWrapper &stat,
+                            const std::string & broadcast_code)
+{
+  int level = DiagStatus::OK;
+  std::string error_str = temperature_dict_.at(level);
 
-  for (const auto & lidar : lds_->connected_lidars_) {
-    int level = DiagStatus::OK;
+  std::pair<std::string, DeviceInfo*> lidar;
+  getLidarByBroadcastcode(lidar, broadcast_code);
 
-    const auto & broadcast_code = lidar.first;
-    const auto & device_info = lidar.second;
+  const auto & device_info = lidar.second;
 
-    if (device_info == nullptr) {
-      stat.add(broadcast_code, "disconnected");
-      continue;
-    }
-
-    if (device_info->state == kLidarStateInit) {
-      stat.addf(broadcast_code, "%d%%", device_info->status.progress);
-      continue;
-    }
-
+  if (device_info == nullptr)
+  {
+    error_str = "disconnected";
+  }
+  else if (device_info->state == kLidarStateInit)
+  {
+    error_str = fmt::format("progress: %d%%", device_info->status.progress);
+  }
+  else
+  {
     TemperatureStatus status = static_cast<TemperatureStatus>(
-      device_info->status.status_code.lidar_error_code.temp_status);
-    if (status == TemperatureStatus::HighOrLow) {
+        device_info->status.status_code.lidar_error_code.temp_status);
+    if (status == TemperatureStatus::HighOrLow)
+    {
       level = DiagStatus::WARN;
-    } else if (status == TemperatureStatus::ExtremelyHighOrLow) {
+    }
+    else if (status == TemperatureStatus::ExtremelyHighOrLow)
+    {
       level = DiagStatus::ERROR;
     }
-
-    if (level != DiagStatus::OK) {
-      if (error_str != "") error_str += ", ";
-      error_str += broadcast_code + ": " + temperature_dict_.at(level);
-    }
-
-    stat.add(broadcast_code, temperature_dict_.at(level));
-    whole_level = std::max(whole_level, level);
+    error_str = temperature_dict_.at(level);
   }
 
-  if (whole_level == DiagStatus::OK) error_str = temperature_dict_.at(whole_level);
-  stat.summary(whole_level, error_str);
+  stat.add(broadcast_code, error_str);
+  stat.summary(level, error_str);
 }
 
-void Lddc::checkVoltage(diagnostic_updater::DiagnosticStatusWrapper & stat)
+void Lddc::checkVoltage(diagnostic_updater::DiagnosticStatusWrapper &stat,
+                        const std::string &broadcast_code)
 {
-  if (lidar_count_ == 0) {
-    stat.summary(DiagStatus::WARN, "No LiDARs Connected");
-    return;
-  }
+  int level = DiagStatus::OK;
+  std::string error_str = voltage_dict_.at(level);
 
-  int whole_level = DiagStatus::OK;
-  std::string error_str = "";
+  std::pair<std::string, DeviceInfo*> lidar;
+  getLidarByBroadcastcode(lidar, broadcast_code);
 
-  for (const auto & lidar : lds_->connected_lidars_) {
-    int level = DiagStatus::OK;
+  const auto & device_info = lidar.second;
 
-    const auto & broadcast_code = lidar.first;
-    const auto & device_info = lidar.second;
-
-    if (device_info == nullptr) {
-      stat.add(broadcast_code, "disconnected");
-      continue;
+  if (device_info == nullptr) {
+    error_str = "disconnected";
+    }
+    else if (device_info->state == kLidarStateInit)
+    {
+      error_str = fmt::format("progress: %d%%", device_info->status.progress);
+    }
+    else
+    {
+      VoltageStatus status = static_cast<VoltageStatus>(
+          device_info->status.status_code.lidar_error_code.volt_status);
+      if (status == VoltageStatus::High)
+      {
+        level = DiagStatus::WARN;
+      }
+      else if (status == VoltageStatus::ExtremelyHigh)
+      {
+        level = DiagStatus::ERROR;
+      }
+      error_str = voltage_dict_.at(level);
     }
 
-    if (device_info->state == kLidarStateInit) {
-      stat.addf(broadcast_code, "%d%%", device_info->status.progress);
-      continue;
-    }
-
-    VoltageStatus status = static_cast<VoltageStatus>(
-      device_info->status.status_code.lidar_error_code.volt_status);
-    if (status == VoltageStatus::High) {
-      level = DiagStatus::WARN;
-    } else if (status == VoltageStatus::ExtremelyHigh) {
-      level = DiagStatus::ERROR;
-    }
-
-    if (level != DiagStatus::OK) {
-      if (error_str != "") error_str += ", ";
-      error_str += broadcast_code + ": " + voltage_dict_.at(level);
-    }
-
-    stat.add(broadcast_code, voltage_dict_.at(level));
-    whole_level = std::max(whole_level, level);
-  }
-
-  if (whole_level == DiagStatus::OK) error_str = voltage_dict_.at(whole_level);
-  stat.summary(whole_level, error_str);
+    stat.add(broadcast_code, error_str);
+    stat.summary(level, error_str);
 }
 
-void Lddc::checkMotor(diagnostic_updater::DiagnosticStatusWrapper & stat)
+void Lddc::checkMotor(diagnostic_updater::DiagnosticStatusWrapper &stat,
+                      const std::string &broadcast_code)
 {
-  if (lidar_count_ == 0) {
-    stat.summary(DiagStatus::WARN, "No LiDARs Connected");
-    return;
+  int level = DiagStatus::OK;
+  std::string error_str = motor_dict_.at(level);
+
+  std::pair<std::string, DeviceInfo*> lidar;
+  getLidarByBroadcastcode(lidar, broadcast_code);
+
+  const auto & device_info = lidar.second;
+
+  if (device_info == nullptr)
+  {
+    error_str = "disconnected";
   }
-
-  int whole_level = DiagStatus::OK;
-  std::string error_str = "";
-
-  for (const auto & lidar : lds_->connected_lidars_) {
-    int level = DiagStatus::OK;
-
-    const auto & broadcast_code = lidar.first;
-    const auto & device_info = lidar.second;
-
-    if (device_info == nullptr) {
-      stat.add(broadcast_code, "disconnected");
-      continue;
-    }
-
-    if (device_info->state == kLidarStateInit) {
-      stat.addf(broadcast_code, "%d%%", device_info->status.progress);
-      continue;
-    }
-
+  else if (device_info->state == kLidarStateInit)
+  {
+    error_str = fmt::format("progress: %d%%", device_info->status.progress);
+  }
+  else
+  {
     MotorStatus status = static_cast<MotorStatus>(
-      device_info->status.status_code.lidar_error_code.motor_status);
-    if (status == MotorStatus::Warning) {
+        device_info->status.status_code.lidar_error_code.motor_status);
+    if (status == MotorStatus::Warning)
+    {
       level = DiagStatus::WARN;
-    } else if (status == MotorStatus::Error) {
+    }
+    else if (status == MotorStatus::Error)
+    {
       level = DiagStatus::ERROR;
     }
-
-    if (level != DiagStatus::OK) {
-      if (error_str != "") error_str += ", ";
-      error_str += broadcast_code + ": " + motor_dict_.at(level);
-    }
-
-    stat.add(broadcast_code, motor_dict_.at(level));
-    whole_level = std::max(whole_level, level);
+    error_str = motor_dict_.at(level);
   }
 
-  if (whole_level == DiagStatus::OK) error_str = motor_dict_.at(whole_level);
-  stat.summary(whole_level, error_str);
+  stat.add(broadcast_code, error_str);
+  stat.summary(level, error_str);
 }
 
-void Lddc::checkDirty(diagnostic_updater::DiagnosticStatusWrapper & stat)
+void Lddc::checkDirty(diagnostic_updater::DiagnosticStatusWrapper &stat,
+                      const std::string &broadcast_code)
 {
-  if (lidar_count_ == 0) {
-    stat.summary(DiagStatus::WARN, "No LiDARs Connected");
-    return;
+  int level = DiagStatus::OK;
+  std::string error_str = dirty_dict_.at(level);
+
+  std::pair<std::string, DeviceInfo*> lidar;
+  getLidarByBroadcastcode(lidar, broadcast_code);
+
+  const auto & device_info = lidar.second;
+
+  if (device_info == nullptr)
+  {
+    error_str = "disconnected";
   }
-
-  int whole_level = DiagStatus::OK;
-  std::string error_str = "";
-
-  for (const auto & lidar : lds_->connected_lidars_) {
-    int level = DiagStatus::OK;
-
-    const auto & broadcast_code = lidar.first;
-    const auto & device_info = lidar.second;
-
-    if (device_info == nullptr) {
-      stat.add(broadcast_code, "disconnected");
-      continue;
-    }
-
-    if (device_info->state == kLidarStateInit) {
-      stat.addf(broadcast_code, "%d%%", device_info->status.progress);
-      continue;
-    }
-
+  else if (device_info->state == kLidarStateInit)
+  {
+    error_str = fmt::format("progress: %d%%", device_info->status.progress);
+  }
+  else
+  {
     DirtyStatus status = static_cast<DirtyStatus>(
-      device_info->status.status_code.lidar_error_code.dirty_warn);
-    if (status == DirtyStatus::DirtyOrBlocked) {
+        device_info->status.status_code.lidar_error_code.dirty_warn);
+    if (status == DirtyStatus::DirtyOrBlocked)
+    {
       level = DiagStatus::WARN;
     }
-
-    if (level != DiagStatus::OK) {
-      if (error_str != "") error_str += ", ";
-      error_str += broadcast_code + ": " + dirty_dict_.at(level);
-    }
-
-    stat.add(broadcast_code, dirty_dict_.at(level));
-    whole_level = std::max(whole_level, level);
+    error_str = dirty_dict_.at(level);
   }
 
-  if (whole_level == DiagStatus::OK) error_str = dirty_dict_.at(whole_level);
-  stat.summary(whole_level, error_str);
+  stat.add(broadcast_code, error_str);
+  stat.summary(level, error_str);
 }
 
-void Lddc::checkFirmware(diagnostic_updater::DiagnosticStatusWrapper & stat)
+void Lddc::checkFirmware(diagnostic_updater::DiagnosticStatusWrapper &stat,
+                         const std::string &broadcast_code)
 {
-  if (lidar_count_ == 0) {
-    stat.summary(DiagStatus::WARN, "No LiDARs Connected");
-    return;
+  int level = DiagStatus::OK;
+  std::string error_str = firmware_dict_.at(level);
+
+  std::pair<std::string, DeviceInfo*> lidar;
+  getLidarByBroadcastcode(lidar, broadcast_code);
+
+  const auto & device_info = lidar.second;
+
+  if (device_info == nullptr)
+  {
+    error_str = "disconnected";
   }
-
-  int whole_level = DiagStatus::OK;
-  std::string error_str = "";
-
-  for (const auto & lidar : lds_->connected_lidars_) {
-    int level = DiagStatus::OK;
-
-    const auto & broadcast_code = lidar.first;
-    const auto & device_info = lidar.second;
-
-    if (device_info == nullptr) {
-      stat.add(broadcast_code, "disconnected");
-      continue;
-    }
-
-    if (device_info->state == kLidarStateInit) {
-      stat.addf(broadcast_code, "%d%%", device_info->status.progress);
-      continue;
-    }
-
+  else if (device_info->state == kLidarStateInit)
+  {
+    error_str = fmt::format("progress: %d%%", device_info->status.progress);
+  }
+  else
+  {
     FirmwareStatus status = static_cast<FirmwareStatus>(
-      device_info->status.status_code.lidar_error_code.firmware_err);
-    if (status == FirmwareStatus::Abnormal) {
+        device_info->status.status_code.lidar_error_code.firmware_err);
+    if (status == FirmwareStatus::Abnormal)
+    {
       level = DiagStatus::ERROR;
     }
-    if (level != DiagStatus::OK) {
-      if (error_str != "") error_str += ", ";
-      error_str += broadcast_code + ": " + firmware_dict_.at(level);
-    }
-
-    stat.add(broadcast_code, firmware_dict_.at(level));
-    whole_level = std::max(whole_level, level);
+    error_str = firmware_dict_.at(level);
   }
 
-  if (whole_level == DiagStatus::OK) error_str = firmware_dict_.at(whole_level);
-  stat.summary(whole_level, error_str);
+  stat.add(broadcast_code, error_str);
+  stat.summary(level, error_str);
 }
 
-void Lddc::checkPPSSignal(diagnostic_updater::DiagnosticStatusWrapper & stat)
+void Lddc::checkPPSSignal(diagnostic_updater::DiagnosticStatusWrapper &stat,
+                          const std::string &broadcast_code)
 {
-  if (lidar_count_ == 0) {
-    stat.summary(DiagStatus::WARN, "No LiDARs Connected");
-    return;
+  int level = DiagStatus::OK;
+  std::string error_str = pps_dict_.at(level);
+
+  std::pair<std::string, DeviceInfo*> lidar;
+  getLidarByBroadcastcode(lidar, broadcast_code);
+
+  const auto & device_info = lidar.second;
+
+  if (device_info == nullptr)
+  {
+    error_str = "disconnected";
   }
-
-  int whole_level = DiagStatus::OK;
-  std::string error_str = "";
-
-  for (const auto & lidar : lds_->connected_lidars_) {
-    int level = DiagStatus::OK;
-
-    const auto & broadcast_code = lidar.first;
-    const auto & device_info = lidar.second;
-
-    if (device_info == nullptr) {
-      stat.add(broadcast_code, "disconnected");
-      continue;
-    }
-
-    if (device_info->state == kLidarStateInit) {
-      stat.addf(broadcast_code, "%d%%", device_info->status.progress);
-      continue;
-    }
-
+  else if (device_info->state == kLidarStateInit)
+  {
+    error_str = fmt::format("progress: %d%%", device_info->status.progress);
+  }
+  else
+  {
     PPSSignalStatus status = static_cast<PPSSignalStatus>(
-      device_info->status.status_code.lidar_error_code.pps_status);
-    if (status == PPSSignalStatus::NoSignal) {
+        device_info->status.status_code.lidar_error_code.pps_status);
+    if (status == PPSSignalStatus::NoSignal)
+    {
       level = DiagStatus::WARN;
     }
-    if (level != DiagStatus::OK) {
-      if (error_str != "") error_str += ", ";
-      error_str += broadcast_code + ": " + pps_dict_.at(level);
-    }
-
-    stat.add(broadcast_code, pps_dict_.at(level));
-    whole_level = std::max(whole_level, level);
+    error_str = pps_dict_.at(level);
   }
 
-  if (whole_level == DiagStatus::OK) error_str = pps_dict_.at(whole_level);
-  stat.summary(whole_level, error_str);
+  stat.add(broadcast_code, error_str);
+  stat.summary(level, error_str);
 }
 
-void Lddc::checkServiceLife(diagnostic_updater::DiagnosticStatusWrapper & stat)
+void Lddc::checkServiceLife(diagnostic_updater::DiagnosticStatusWrapper &stat,
+                            const std::string &broadcast_code)
 {
-  if (lidar_count_ == 0) {
-    stat.summary(DiagStatus::WARN, "No LiDARs Connected");
-    return;
+  int level = DiagStatus::OK;
+  std::string error_str = life_dict_.at(level);
+
+  std::pair<std::string, DeviceInfo*> lidar;
+  getLidarByBroadcastcode(lidar, broadcast_code);
+
+  const auto & device_info = lidar.second;
+
+  if (device_info == nullptr)
+  {
+    error_str = "disconnected";
   }
-
-  int whole_level = DiagStatus::OK;
-  std::string error_str = "";
-
-  for (const auto & lidar : lds_->connected_lidars_) {
-    int level = DiagStatus::OK;
-
-    const auto & broadcast_code = lidar.first;
-    const auto & device_info = lidar.second;
-
-    if (device_info == nullptr) {
-      stat.add(broadcast_code, "disconnected");
-      continue;
-    }
-
-    if (device_info->state == kLidarStateInit) {
-      stat.addf(broadcast_code, "%d%%", device_info->status.progress);
-      continue;
-    }
-
+  else if (device_info->state == kLidarStateInit)
+  {
+    error_str = fmt::format("progress: %d%%", device_info->status.progress);
+  }
+  else
+  {
     ServiceLifeStatus status = static_cast<ServiceLifeStatus>(
-      device_info->status.status_code.lidar_error_code.device_status);
-    if (status == ServiceLifeStatus::Warning) {
+        device_info->status.status_code.lidar_error_code.device_status);
+    if (status == ServiceLifeStatus::Warning)
+    {
       level = DiagStatus::WARN;
     }
-    if (level != DiagStatus::OK) {
-      if (error_str != "") error_str += ", ";
-      error_str += broadcast_code + ": " + life_dict_.at(level);
-    }
-
-    stat.add(broadcast_code, life_dict_.at(level));
-    whole_level = std::max(whole_level, level);
+    error_str = life_dict_.at(level);
   }
 
-  if (whole_level == DiagStatus::OK) error_str = life_dict_.at(whole_level);
-  stat.summary(whole_level, error_str);
+  stat.add(broadcast_code, error_str);
+  stat.summary(level, error_str);
 }
 
-void Lddc::checkFan(diagnostic_updater::DiagnosticStatusWrapper & stat)
+void Lddc::checkFan(diagnostic_updater::DiagnosticStatusWrapper &stat,
+                    const std::string &broadcast_code)
 {
-  if (lidar_count_ == 0) {
-    stat.summary(DiagStatus::WARN, "No LiDARs Connected");
-    return;
+  int level = DiagStatus::OK;
+  std::string error_str = fan_dict_.at(level);
+
+  std::pair<std::string, DeviceInfo*> lidar;
+  getLidarByBroadcastcode(lidar, broadcast_code);
+
+  const auto & device_info = lidar.second;
+
+  if (device_info == nullptr)
+  {
+    error_str = "disconnected";
   }
-
-  int whole_level = DiagStatus::OK;
-  std::string error_str = "";
-
-  for (const auto & lidar : lds_->connected_lidars_) {
-    int level = DiagStatus::OK;
-
-    const auto & broadcast_code = lidar.first;
-    const auto & device_info = lidar.second;
-
-    if (device_info == nullptr) {
-      stat.add(broadcast_code, "disconnected");
-      continue;
-    }
-
-    if (device_info->state == kLidarStateInit) {
-      stat.addf(broadcast_code, "%d%%", device_info->status.progress);
-      continue;
-    }
-
+  else if (device_info->state == kLidarStateInit)
+  {
+    error_str = fmt::format("progress: %d%%", device_info->status.progress);
+  }
+  else
+  {
     FanStatus status = static_cast<FanStatus>(
-      device_info->status.status_code.lidar_error_code.fan_status);
-    if (status == FanStatus::Warning) {
+        device_info->status.status_code.lidar_error_code.fan_status);
+    if (status == FanStatus::Warning)
+    {
       level = DiagStatus::WARN;
     }
-    if (level != DiagStatus::OK) {
-      if (error_str != "") error_str += ", ";
-      error_str += broadcast_code + ": " + fan_dict_.at(level);
-    }
-
-    stat.add(broadcast_code, fan_dict_.at(level));
-    whole_level = std::max(whole_level, level);
+    error_str = fan_dict_.at(level);
   }
 
-  if (whole_level == DiagStatus::OK) error_str = fan_dict_.at(whole_level);
-  stat.summary(whole_level, error_str);
+  stat.add(broadcast_code, error_str);
+  stat.summary(level, error_str);
 }
 
-void Lddc::checkPTPSignal(diagnostic_updater::DiagnosticStatusWrapper & stat)
+void Lddc::checkPTPSignal(diagnostic_updater::DiagnosticStatusWrapper &stat, const std::string &broadcast_code)
 {
-  if (lidar_count_ == 0) {
-    stat.summary(DiagStatus::WARN, "No LiDARs Connected");
-    return;
+  int level = DiagStatus::OK;
+  std::string error_str = ptp_dict_.at(level);
+
+  std::pair<std::string, DeviceInfo*> lidar;
+  getLidarByBroadcastcode(lidar, broadcast_code);
+
+  const auto & device_info = lidar.second;
+
+  if (device_info == nullptr)
+  {
+    error_str = "disconnected";
   }
-
-  int whole_level = DiagStatus::OK;
-  std::string error_str = "";
-
-  for (const auto & lidar : lds_->connected_lidars_) {
-    int level = DiagStatus::OK;
-
-    const auto & broadcast_code = lidar.first;
-    const auto & device_info = lidar.second;
-
-    if (device_info == nullptr) {
-      stat.add(broadcast_code, "disconnected");
-      continue;
-    }
-
-    if (device_info->state == kLidarStateInit) {
-      stat.addf(broadcast_code, "%d%%", device_info->status.progress);
-      continue;
-    }
-
+  else if (device_info->state == kLidarStateInit)
+  {
+    error_str = fmt::format("progress: %d%%", device_info->status.progress);
+  }
+  else
+  {
     PTPSignalStatus status = static_cast<PTPSignalStatus>(
       device_info->status.status_code.lidar_error_code.ptp_status);
     if (status == PTPSignalStatus::NoSignal) {
       level = DiagStatus::WARN;
     }
-
-    if (level != DiagStatus::OK) {
-      if (error_str != "") error_str += ", ";
-      error_str += broadcast_code + ": " + ptp_dict_.at(level);
-    }
-
-    stat.add(broadcast_code, ptp_dict_.at(level));
-    whole_level = std::max(whole_level, level);
+    error_str = ptp_dict_.at(level);
   }
 
-  if (whole_level == DiagStatus::OK) error_str = ptp_dict_.at(whole_level);
-  stat.summary(whole_level, error_str);
+  stat.add(broadcast_code, error_str);
+  stat.summary(level, error_str);
 }
 
-void Lddc::checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper & stat)
+void Lddc::checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper &stat,
+                         const std::string &broadcast_code)
 {
-  if (lidar_count_ == 0) {
-    stat.summary(DiagStatus::WARN, "No LiDARs Connected");
-    return;
+  int level = DiagStatus::OK;
+  std::string error_str = time_sync_dict_.at(level);
+
+  std::pair<std::string, DeviceInfo*> lidar;
+  getLidarByBroadcastcode(lidar, broadcast_code);
+
+  const auto & device_info = lidar.second;
+
+  if (device_info == nullptr)
+  {
+    error_str = "disconnected";
   }
-
-  int whole_level = DiagStatus::OK;
-  std::string error_str = "";
-
-  for (const auto & lidar : lds_->connected_lidars_) {
-    int level = DiagStatus::OK;
-
-    const auto & broadcast_code = lidar.first;
-    const auto & device_info = lidar.second;
-
-    if (device_info == nullptr) {
-      stat.add(broadcast_code, "disconnected");
-      continue;
-    }
-
-    if (device_info->state == kLidarStateInit) {
-      stat.addf(broadcast_code, "%d%%", device_info->status.progress);
-      continue;
-    }
-
+  else if (device_info->state == kLidarStateInit)
+  {
+    error_str = fmt::format("progress: %d%%", device_info->status.progress);
+  }
+  else
+  {
     TimeSyncStatus status = static_cast<TimeSyncStatus>(
       device_info->status.status_code.lidar_error_code.time_sync_status);
     if (status == TimeSyncStatus::Abnormal) {
       level = DiagStatus::WARN;
     }
-    if (level != DiagStatus::OK) {
-      if (error_str != "") error_str += ", ";
-      error_str += broadcast_code + ": " + time_sync_dict_.at(level);
-    }
-
-    stat.add(broadcast_code, time_sync_dict_.at(level));
-    whole_level = std::max(whole_level, level);
+    error_str = time_sync_dict_.at(level);
   }
 
-  if (whole_level == DiagStatus::OK) error_str = time_sync_dict_.at(whole_level);
-  stat.summary(whole_level, error_str);
+  stat.add(broadcast_code, error_str);
+  stat.summary(level, error_str);
 }
 
-void Lddc::checkConnection(diagnostic_updater::DiagnosticStatusWrapper & stat)
+void Lddc::checkConnection(diagnostic_updater::DiagnosticStatusWrapper &stat,
+                           const std::string &broadcast_code)
 {
-  if (lidar_count_ == 0) {
-    stat.summary(DiagStatus::WARN, "No LiDARs Connected");
-    return;
+  int level = DiagStatus::OK;
+  std::string error_str = "OK";
+
+  std::pair<std::string, DeviceInfo*> lidar;
+  getLidarByBroadcastcode(lidar, broadcast_code);
+
+  const auto & device_info = lidar.second;
+
+  if (device_info == nullptr)
+  {
+    level = DiagStatus::ERROR;
+    error_str = "disconnected";
   }
-  std::string error_str = "";
-
-  for (const auto & lidar : lds_->connected_lidars_) {
-
-    const auto & broadcast_code = lidar.first;
-    const auto & device_info = lidar.second;
-
-    if (device_info == nullptr) {
-      if (error_str != "") error_str += ", ";
-      error_str += broadcast_code + ": " + "disconnected";
-      stat.add(broadcast_code, "disconnected");
-      continue;
-    }
-
-    if (device_info->state == kLidarStateInit) {
-      stat.addf(broadcast_code, "%d%%", device_info->status.progress);
-      continue;
-    }
-
-    stat.add(broadcast_code, "OK");
+  else if (device_info->state == kLidarStateInit) {
+    level = DiagStatus::WARN;
+    error_str = fmt::format("progress: %d%%", device_info->status.progress);
   }
 
-  if (!error_str.empty()) {
-    stat.summary(DiagStatus::ERROR, error_str);
-  }
-  else {
-    stat.summary(DiagStatus::OK, "OK");
-  }
+  stat.add(broadcast_code, error_str);
+  stat.summary(level, error_str);
 }
 }  // namespace livox_ros
