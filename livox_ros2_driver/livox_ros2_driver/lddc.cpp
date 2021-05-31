@@ -768,7 +768,7 @@ void Lddc::onDiagnosticsTimer()
               broadcast_code));
 
       updater_.add(
-          fmt::format("livox_time_sync{}", broadcast_code),
+          fmt::format("livox_time_sync_{}", broadcast_code),
           std::bind(
               &Lddc::checkTimeSync, this, std::placeholders::_1,
               broadcast_code));
