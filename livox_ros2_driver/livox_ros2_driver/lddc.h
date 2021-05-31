@@ -103,6 +103,7 @@ private:
       uint32_t point_interval, uint32_t echo_num);
 
   void onDiagnosticsTimer();
+  void registerDiagnosticsUpdater(const std::string & broadcast_code);
   void checkTemperature(diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & broadcast_code);
   void checkVoltage(diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & broadcast_code);
   void checkMotor(diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & broadcast_code);
