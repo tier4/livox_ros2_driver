@@ -113,6 +113,7 @@ private:
   void checkFan(diagnostic_updater::DiagnosticStatusWrapper & stat);
   void checkPTPSignal(diagnostic_updater::DiagnosticStatusWrapper & stat);
   void checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper & stat);
+  void checkConnection(diagnostic_updater::DiagnosticStatusWrapper & stat);
 
   uint8_t transfer_format_;
   uint8_t use_multi_topic_;
