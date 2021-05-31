@@ -798,7 +798,7 @@ void Lddc::checkTemperature(diagnostic_updater::DiagnosticStatusWrapper &stat,
                             const std::string & broadcast_code)
 {
   int level = DiagStatus::OK;
-  std::string error_str = temperature_dict_.at(level);
+  std::string error_str = "OK";
 
   std::pair<std::string, DeviceInfo*> lidar;
   getLidarByBroadcastcode(lidar, broadcast_code);
@@ -836,7 +836,7 @@ void Lddc::checkVoltage(diagnostic_updater::DiagnosticStatusWrapper &stat,
                         const std::string &broadcast_code)
 {
   int level = DiagStatus::OK;
-  std::string error_str = voltage_dict_.at(level);
+  std::string error_str = "OK";
 
   std::pair<std::string, DeviceInfo*> lidar;
   getLidarByBroadcastcode(lidar, broadcast_code);
@@ -873,7 +873,7 @@ void Lddc::checkMotor(diagnostic_updater::DiagnosticStatusWrapper &stat,
                       const std::string &broadcast_code)
 {
   int level = DiagStatus::OK;
-  std::string error_str = motor_dict_.at(level);
+  std::string error_str = "OK";
 
   std::pair<std::string, DeviceInfo*> lidar;
   getLidarByBroadcastcode(lidar, broadcast_code);
@@ -911,7 +911,7 @@ void Lddc::checkDirty(diagnostic_updater::DiagnosticStatusWrapper &stat,
                       const std::string &broadcast_code)
 {
   int level = DiagStatus::OK;
-  std::string error_str = dirty_dict_.at(level);
+  std::string error_str = "OK";
 
   std::pair<std::string, DeviceInfo*> lidar;
   getLidarByBroadcastcode(lidar, broadcast_code);
@@ -945,7 +945,7 @@ void Lddc::checkFirmware(diagnostic_updater::DiagnosticStatusWrapper &stat,
                          const std::string &broadcast_code)
 {
   int level = DiagStatus::OK;
-  std::string error_str = firmware_dict_.at(level);
+  std::string error_str = "OK";
 
   std::pair<std::string, DeviceInfo*> lidar;
   getLidarByBroadcastcode(lidar, broadcast_code);
@@ -979,7 +979,7 @@ void Lddc::checkPPSSignal(diagnostic_updater::DiagnosticStatusWrapper &stat,
                           const std::string &broadcast_code)
 {
   int level = DiagStatus::OK;
-  std::string error_str = pps_dict_.at(level);
+  std::string error_str = "OK";
 
   std::pair<std::string, DeviceInfo*> lidar;
   getLidarByBroadcastcode(lidar, broadcast_code);
@@ -1013,7 +1013,7 @@ void Lddc::checkServiceLife(diagnostic_updater::DiagnosticStatusWrapper &stat,
                             const std::string &broadcast_code)
 {
   int level = DiagStatus::OK;
-  std::string error_str = life_dict_.at(level);
+  std::string error_str = "OK";
 
   std::pair<std::string, DeviceInfo*> lidar;
   getLidarByBroadcastcode(lidar, broadcast_code);
@@ -1047,7 +1047,7 @@ void Lddc::checkFan(diagnostic_updater::DiagnosticStatusWrapper &stat,
                     const std::string &broadcast_code)
 {
   int level = DiagStatus::OK;
-  std::string error_str = fan_dict_.at(level);
+  std::string error_str = "OK";
 
   std::pair<std::string, DeviceInfo*> lidar;
   getLidarByBroadcastcode(lidar, broadcast_code);
@@ -1080,7 +1080,7 @@ void Lddc::checkFan(diagnostic_updater::DiagnosticStatusWrapper &stat,
 void Lddc::checkPTPSignal(diagnostic_updater::DiagnosticStatusWrapper &stat, const std::string &broadcast_code)
 {
   int level = DiagStatus::OK;
-  std::string error_str = ptp_dict_.at(level);
+  std::string error_str = "OK";
 
   std::pair<std::string, DeviceInfo*> lidar;
   getLidarByBroadcastcode(lidar, broadcast_code);
@@ -1113,7 +1113,7 @@ void Lddc::checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper &stat,
                          const std::string &broadcast_code)
 {
   int level = DiagStatus::OK;
-  std::string error_str = time_sync_dict_.at(level);
+  std::string error_str = "OK";
 
   std::pair<std::string, DeviceInfo*> lidar;
   getLidarByBroadcastcode(lidar, broadcast_code);
