@@ -704,6 +704,7 @@ void Lddc::initializeDiagnostics()
 
 void Lddc::registerDiagnosticsUpdater(const std::string &broadcast_code)
 {
+  registered_code_set_.insert(broadcast_code);
   if (registered_code_set_.count(broadcast_code) == 0) {
     updater_.add(fmt::format("livox_temperature-{}", broadcast_code),
                  std::bind(&Lddc::checkTemperature, this, std::placeholders::_1,
