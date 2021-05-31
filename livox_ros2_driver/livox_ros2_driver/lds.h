@@ -189,6 +189,7 @@ typedef struct {
   char broadcast_code[16];
   bool enable_connect;
   bool enable_fan;
+  bool use_ros_time;
   uint32_t return_mode;
   uint32_t coordinate;
   uint32_t imu_rate;
