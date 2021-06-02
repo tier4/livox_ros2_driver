@@ -136,7 +136,6 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
   diagnostic_updater::Updater updater_;
   uint8_t lidar_count_;
-  uint8_t connected_lidar_count_ = 0;
   std::set<std::string> registered_code_set_;
 
   const std::map<int, const char *> temperature_dict_ = {

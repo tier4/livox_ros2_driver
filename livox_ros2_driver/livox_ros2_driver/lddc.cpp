@@ -753,14 +753,11 @@ void Lddc::onDiagnosticsTimer()
     if (lds_->lidars_[i].handle != kMaxSourceLidar) ++lidar_count_;
   }
 
-  if (connected_lidar_count_ != lds_->connected_lidars_.size()) {
-    connected_lidar_count_ = lds_->connected_lidars_.size();
-    for (const auto &lidar : lds_->connected_lidars_) {
-      const std::string broadcast_code = lidar.first;
+  for (const auto &lidar : lds_->connected_lidars_) {
+    const std::string broadcast_code = lidar.first;
+    if (registered_code_set_.count(broadcast_code) == 0) {
+      Lddc::registerDiagnosticsUpdater(broadcast_code);
       registered_code_set_.insert(broadcast_code);
-      if (registered_code_set_.count(broadcast_code) == 0) {
-        Lddc::registerDiagnosticsUpdater(broadcast_code);
-      }
     }
   }
 
