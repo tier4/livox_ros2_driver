@@ -781,7 +781,7 @@ void Lddc::checkTemperature(diagnostic_updater::DiagnosticStatusWrapper &stat,
 
   const auto device_info = findDeviceInfoByBroadcastcode(broadcast_code);
 
-  if (*device_info == nullptr) {
+  if (!device_info) {
     error_str = "disconnected";
   } else if ((*device_info)->state == kLidarStateInit) {
     error_str = fmt::format("progress: %d%%", (*device_info)->status.progress);
@@ -808,7 +808,7 @@ void Lddc::checkVoltage(diagnostic_updater::DiagnosticStatusWrapper &stat,
 
   const auto device_info = findDeviceInfoByBroadcastcode(broadcast_code);
 
-  if (*device_info == nullptr) {
+  if (!device_info) {
     error_str = "disconnected";
   } else if ((*device_info)->state == kLidarStateInit) {
     error_str = fmt::format("progress: %d%%", (*device_info)->status.progress);
@@ -835,7 +835,7 @@ void Lddc::checkMotor(diagnostic_updater::DiagnosticStatusWrapper &stat,
 
   const auto device_info = findDeviceInfoByBroadcastcode(broadcast_code);
 
-  if (*device_info == nullptr) {
+  if (!device_info) {
     error_str = "disconnected";
   } else if ((*device_info)->state == kLidarStateInit) {
     error_str = fmt::format("progress: %d%%", (*device_info)->status.progress);
@@ -862,7 +862,7 @@ void Lddc::checkDirty(diagnostic_updater::DiagnosticStatusWrapper &stat,
 
   const auto device_info = findDeviceInfoByBroadcastcode(broadcast_code);
 
-  if (*device_info == nullptr) {
+  if (!device_info) {
     error_str = "disconnected";
   } else if ((*device_info)->state == kLidarStateInit) {
     error_str = fmt::format("progress: %d%%", (*device_info)->status.progress);
@@ -887,7 +887,7 @@ void Lddc::checkFirmware(diagnostic_updater::DiagnosticStatusWrapper &stat,
 
   const auto device_info = findDeviceInfoByBroadcastcode(broadcast_code);
 
-  if (*device_info == nullptr) {
+  if (!device_info) {
     error_str = "disconnected";
   } else if ((*device_info)->state == kLidarStateInit) {
     error_str = fmt::format("progress: %d%%", (*device_info)->status.progress);
@@ -912,7 +912,7 @@ void Lddc::checkPPSSignal(diagnostic_updater::DiagnosticStatusWrapper &stat,
 
   const auto device_info = findDeviceInfoByBroadcastcode(broadcast_code);
 
-  if (*device_info == nullptr) {
+  if (!device_info) {
     error_str = "disconnected";
   } else if ((*device_info)->state == kLidarStateInit) {
     error_str = fmt::format("progress: %d%%", (*device_info)->status.progress);
@@ -937,7 +937,7 @@ void Lddc::checkServiceLife(diagnostic_updater::DiagnosticStatusWrapper &stat,
 
   const auto device_info = findDeviceInfoByBroadcastcode(broadcast_code);
 
-  if (*device_info == nullptr) {
+  if (!device_info) {
     error_str = "disconnected";
   } else if ((*device_info)->state == kLidarStateInit) {
     error_str = fmt::format("progress: %d%%", (*device_info)->status.progress);
@@ -962,7 +962,7 @@ void Lddc::checkFan(diagnostic_updater::DiagnosticStatusWrapper &stat,
 
   const auto device_info = findDeviceInfoByBroadcastcode(broadcast_code);
 
-  if (*device_info == nullptr) {
+  if (!device_info) {
     error_str = "disconnected";
   } else if ((*device_info)->state == kLidarStateInit) {
     error_str = fmt::format("progress: %d%%", (*device_info)->status.progress);
@@ -986,7 +986,7 @@ void Lddc::checkPTPSignal(diagnostic_updater::DiagnosticStatusWrapper &stat, con
 
   const auto device_info = findDeviceInfoByBroadcastcode(broadcast_code);
 
-  if (*device_info == nullptr) {
+  if (!device_info) {
     error_str = "disconnected";
   } else if ((*device_info)->state == kLidarStateInit) {
     error_str = fmt::format("progress: %d%%", (*device_info)->status.progress);
@@ -1011,7 +1011,7 @@ void Lddc::checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper &stat,
 
   const auto device_info = findDeviceInfoByBroadcastcode(broadcast_code);
 
-  if (*device_info == nullptr) {
+  if (!device_info) {
     error_str = "disconnected";
   } else if ((*device_info)->state == kLidarStateInit) {
     error_str = fmt::format("progress: %d%%", (*device_info)->status.progress);
@@ -1036,7 +1036,7 @@ void Lddc::checkConnection(diagnostic_updater::DiagnosticStatusWrapper &stat,
 
   const auto device_info = findDeviceInfoByBroadcastcode(broadcast_code);
 
-  if (*device_info == nullptr) {
+  if (!device_info) {
     level = DiagStatus::ERROR;
     error_str = "disconnected";
   } else if ((*device_info)->state == kLidarStateInit) {
