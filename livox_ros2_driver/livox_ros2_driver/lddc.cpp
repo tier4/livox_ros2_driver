@@ -796,7 +796,7 @@ void Lddc::checkTemperature(diagnostic_updater::DiagnosticStatusWrapper &stat,
     error_str = temperature_dict_.at(level);
   }
 
-  stat.add(broadcast_code, error_str);
+  stat.add("broadcast_code", broadcast_code);
   stat.summary(level, error_str);
 }
 
@@ -823,7 +823,7 @@ void Lddc::checkVoltage(diagnostic_updater::DiagnosticStatusWrapper &stat,
     error_str = voltage_dict_.at(level);
   }
 
-    stat.add(broadcast_code, error_str);
+    stat.add("broadcast_code", broadcast_code);
     stat.summary(level, error_str);
 }
 
@@ -850,7 +850,7 @@ void Lddc::checkMotor(diagnostic_updater::DiagnosticStatusWrapper &stat,
     error_str = motor_dict_.at(level);
   }
 
-  stat.add(broadcast_code, error_str);
+  stat.add("broadcast_code", broadcast_code);
   stat.summary(level, error_str);
 }
 
@@ -875,7 +875,7 @@ void Lddc::checkDirty(diagnostic_updater::DiagnosticStatusWrapper &stat,
     error_str = dirty_dict_.at(level);
   }
 
-  stat.add(broadcast_code, error_str);
+  stat.add("broadcast_code", broadcast_code);
   stat.summary(level, error_str);
 }
 
@@ -900,7 +900,7 @@ void Lddc::checkFirmware(diagnostic_updater::DiagnosticStatusWrapper &stat,
     error_str = firmware_dict_.at(level);
   }
 
-  stat.add(broadcast_code, error_str);
+  stat.add("broadcast_code", broadcast_code);
   stat.summary(level, error_str);
 }
 
@@ -925,7 +925,7 @@ void Lddc::checkPPSSignal(diagnostic_updater::DiagnosticStatusWrapper &stat,
     error_str = pps_dict_.at(level);
   }
 
-  stat.add(broadcast_code, error_str);
+  stat.add("broadcast_code", broadcast_code);
   stat.summary(level, error_str);
 }
 
@@ -950,7 +950,7 @@ void Lddc::checkServiceLife(diagnostic_updater::DiagnosticStatusWrapper &stat,
     error_str = life_dict_.at(level);
   }
 
-  stat.add(broadcast_code, error_str);
+  stat.add("broadcast_code", broadcast_code);
   stat.summary(level, error_str);
 }
 
@@ -975,7 +975,7 @@ void Lddc::checkFan(diagnostic_updater::DiagnosticStatusWrapper &stat,
     error_str = fan_dict_.at(level);
   }
 
-  stat.add(broadcast_code, error_str);
+  stat.add("broadcast_code", broadcast_code);
   stat.summary(level, error_str);
 }
 
@@ -999,7 +999,7 @@ void Lddc::checkPTPSignal(diagnostic_updater::DiagnosticStatusWrapper &stat, con
     error_str = ptp_dict_.at(level);
   }
 
-  stat.add(broadcast_code, error_str);
+  stat.add("broadcast_code", broadcast_code);
   stat.summary(level, error_str);
 }
 
@@ -1024,7 +1024,7 @@ void Lddc::checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper &stat,
     error_str = time_sync_dict_.at(level);
   }
 
-  stat.add(broadcast_code, error_str);
+  stat.add("broadcast_code", broadcast_code);
   stat.summary(level, error_str);
 }
 
@@ -1044,7 +1044,7 @@ void Lddc::checkConnection(diagnostic_updater::DiagnosticStatusWrapper &stat,
     error_str = fmt::format("progress: %d%%", (*device_info)->status.progress);
   }
 
-  stat.add(broadcast_code, error_str);
+  stat.add("broadcast_code", broadcast_code);
   stat.summary(level, error_str);
 }
 }  // namespace livox_ros
