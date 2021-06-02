@@ -499,7 +499,7 @@ class Lds {
   uint8_t lidar_count_;                 /**< Lidar access handle. */
   LidarDevice lidars_[kMaxSourceLidar]; /**< The index is the handle */
   Semaphore semaphore_;
-  std::map<std::string, DeviceInfo*> connected_lidars_;
+  std::map<std::string, LidarDevice*> connected_lidars_;
 
  protected:
   uint32_t buffer_time_ms_; /**< Buffer time before data in queue is read */
