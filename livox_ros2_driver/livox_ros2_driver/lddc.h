@@ -115,7 +115,7 @@ private:
   void checkPTPSignal(diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & broadcast_code);
   void checkTimeSync(diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & broadcast_code);
   void checkConnection(diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & broadcast_code);
-  void getLidarByBroadcastcode(std::pair<std::string, DeviceInfo*> & lidar, const std::string & broadcast_code);
+  boost::optional<DeviceInfo*> findDeviceInfoByBroadcastcode(const std::string &broadcast_code);
 
   uint8_t transfer_format_;
   uint8_t use_multi_topic_;
