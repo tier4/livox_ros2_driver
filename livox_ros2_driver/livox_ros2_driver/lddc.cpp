@@ -826,8 +826,8 @@ void Lddc::checkVoltage(diagnostic_updater::DiagnosticStatusWrapper &stat,
     error_str = voltage_dict_.at(level);
   }
 
-    stat.add("broadcast_code", broadcast_code);
-    stat.summary(level, error_str);
+  stat.add("broadcast_code", broadcast_code);
+  stat.summary(level, error_str);
 }
 
 void Lddc::checkMotor(diagnostic_updater::DiagnosticStatusWrapper &stat,
